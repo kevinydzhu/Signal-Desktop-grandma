@@ -42,7 +42,8 @@
       "Bash(pnpm run lint:*)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:www.electron.build)",
-      "Bash(npm info:*)"
+      "Bash(npm info:*)",
+      "Bash(pnpm run check:types:*)"
     ]
   }
 }
