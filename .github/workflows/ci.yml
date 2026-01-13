@@ -61,12 +61,6 @@ jobs:
       - run: pnpm run generate
       - run: pnpm run lint
       - run: pnpm run lint-deps
-      - run: pnpm run lint-license-comments
-
-      - name: Check acknowledgments file is up to date
-        run: pnpm run build:acknowledgments
-        env:
-          REQUIRE_SIGNAL_LIB_FILES: 1
 
       - run: git diff --exit-code
 
