@@ -36,6 +36,10 @@ import {
   version as packageVersion,
   productName,
 } from '../ts/util/packageJson.node.js';
+import {
+  extractBuildDate,
+  extractCommitHash,
+} from '../ts/util/version.std.js';
 import * as GlobalErrors from './global_errors.main.js';
 import { setup as setupCrashReports } from './crashReports.main.js';
 import { setup as setupSpellChecker } from './spell_check.main.js';
@@ -2799,6 +2803,8 @@ ipc.on('get-config', async event => {
     preferredSystemLocales: getPreferredSystemLocales(),
     localeOverride: getLocaleOverride(),
     version: app.getVersion(),
+    buildDate: extractBuildDate(app.getVersion()),
+    buildCommitHash: extractCommitHash(app.getVersion()),
     buildCreation: config.get<number>('buildCreation'),
     buildExpiration: config.get<number>('buildExpiration'),
     challengeUrl: config.get<string>('challengeUrl'),
