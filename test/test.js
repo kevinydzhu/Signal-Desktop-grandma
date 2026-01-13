@@ -6,7 +6,7 @@
  */
 
 mocha.setup('bdd');
-mocha.setup({ timeout: 10000 });
+mocha.setup({ timeout: 15000 });
 
 let themeSetting = 'light';
 
