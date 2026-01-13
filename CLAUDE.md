@@ -96,8 +96,14 @@ Strings are in `_locales/en/messages.json`. Never hardcode user-visible strings 
 - Integration tests: `ts/test-mock/` (uses `@signalapp/mock-server`)
 - Storybook: `*.stories.tsx` files alongside components
 
-Run a single test file:
+Run tests with a filter:
 
 ```bash
-pnpm run test-node -- --grep "pattern"
+pnpm run test-node -- --grep "pattern"     # Filter Node tests by name
+pnpm run test-mock -- --grep "pattern"     # Filter mock tests by name
 ```
+
+## Environment Variables
+
+- `NODE_APP_INSTANCE=name` - Use a different storage profile (reads `config/local-{name}.json`, stores data in `Signal-{storageProfile}`)
+- `SIGNAL_ENABLE_HTTP=1` - Allow HTTP requests to development server (required for Storybook with `pnpm start`)
