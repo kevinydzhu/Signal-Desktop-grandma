@@ -17,6 +17,7 @@ export const STORAGE_UI_KEYS: ReadonlyArray<keyof StorageAccessType> = [
   'badge-count-muted-conversations',
   'call-ringtone-notification',
   'call-system-notification',
+  'auto-answer-calls',
   'customColors',
   'defaultConversationColor',
   'existingOnboardingStoryMessageIds',

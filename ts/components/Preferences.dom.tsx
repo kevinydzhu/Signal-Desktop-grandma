@@ -134,6 +134,7 @@ export type PropsDataType = {
   hasAutoLaunch: boolean | undefined;
   hasCallNotifications: boolean;
   hasCallRingtoneNotification: boolean;
+  hasAutoAnswerCalls: boolean;
   hasContentProtection: boolean | undefined;
   hasCountMutedConversations: boolean;
   hasHideMenuBar?: boolean;
@@ -295,6 +296,7 @@ type PropsFunctionType = {
   onBackupKeyViewedChange: (keyViewed: boolean) => void;
   onCallNotificationsChange: CheckboxChangeHandlerType;
   onCallRingtoneNotificationChange: CheckboxChangeHandlerType;
+  onAutoAnswerCallsChange: CheckboxChangeHandlerType;
   onContentProtectionChange: CheckboxChangeHandlerType;
   onCountMutedConversationsChange: CheckboxChangeHandlerType;
   onEmojiSkinToneDefaultChange: (emojiSkinTone: EmojiSkinTone) => void;
@@ -416,6 +418,7 @@ export function Preferences({
   hasAutoLaunch,
   hasCallNotifications,
   hasCallRingtoneNotification,
+  hasAutoAnswerCalls,
   hasContentProtection,
   hasCountMutedConversations,
   hasFailedStorySends,
@@ -464,6 +467,7 @@ export function Preferences({
   onBackupKeyViewedChange,
   onCallNotificationsChange,
   onCallRingtoneNotificationChange,
+  onAutoAnswerCallsChange,
   onContentProtectionChange,
   onCountMutedConversationsChange,
   onEmojiSkinToneDefaultChange,
@@ -1346,6 +1350,35 @@ export function Preferences({
             name="callRingtoneNotification"
             onChange={onCallRingtoneNotificationChange}
           />
+          <Checkbox
+            checked={hasAutoAnswerCalls}
+            description={i18n(
+              'icu:Preferences__auto-answer-calls--description'
+            )}
+            moduleClassName="Preferences__checkbox"
+            name="autoAnswerCalls"
+            onChange={onAutoAnswerCallsChange}
+            label={i18n('icu:Preferences__auto-answer-calls')}
+          >
+            {({ id, checkboxNode }) => (
+              <>
+                {checkboxNode}
+                <div>
+                  <label htmlFor={id}>
+                    <div>
+                      {i18n('icu:Preferences__auto-answer-calls')}
+                      <span className="Preferences__custom-badge">
+                        {i18n('icu:Preferences__custom-badge')}
+                      </span>
+                    </div>
+                    <div className="Checkbox__description">
+                      {i18n('icu:Preferences__auto-answer-calls--description')}
+                    </div>
+                  </label>
+                </div>
+              </>
+            )}
+          </Checkbox>
         </SettingsRow>
         <SettingsRow title={i18n('icu:Preferences__devices')}>
           <Control

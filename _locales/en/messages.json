@@ -2992,6 +2992,22 @@
     "messageformat": "Enable incoming calls",
     "description": "Description for incoming calls setting"
   },
+  "icu:Preferences__auto-answer-calls": {
+    "messageformat": "Auto-answer calls after 3 seconds",
+    "description": "Label for the auto-answer calls setting"
+  },
+  "icu:Preferences__auto-answer-calls--description": {
+    "messageformat": "Automatically answer incoming calls after a brief countdown",
+    "description": "Description for the auto-answer calls setting"
+  },
+  "icu:Preferences__custom-badge": {
+    "messageformat": "Custom",
+    "description": "Badge label indicating a custom/non-standard feature"
+  },
+  "icu:IncomingCallBar__auto-answer-countdown": {
+    "messageformat": "Auto-answering in {seconds}...",
+    "description": "Countdown message shown before auto-answering a call"
+  },
   "icu:contactChangedProfileName": {
     "messageformat": "{sender} changed their profile name from {oldProfile} to {newProfile}.",
     "description": "Description for incoming calls setting"
