@@ -76,6 +76,8 @@ export const rendererConfigSchema = z.object({
   resourcesUrl: configRequiredStringSchema,
   userDataPath: configRequiredStringSchema,
   version: configRequiredStringSchema,
+  buildDate: configOptionalStringSchema,
+  buildCommitHash: configOptionalStringSchema,
   directoryConfig: directoryConfigSchema,
 
   // Only used by main window

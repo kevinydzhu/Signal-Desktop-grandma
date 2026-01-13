@@ -22,6 +22,8 @@ export default {
     platform: 'darwin',
     arch: 'arm64',
     version: '1.2.3',
+    buildDate: '2026-01-14',
+    buildCommitHash: 'abc1234',
   },
 } satisfies ComponentMeta<AboutProps>;
 

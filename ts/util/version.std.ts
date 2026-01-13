@@ -65,3 +65,13 @@ export const generateTaggedVersion = (options: {
 
   return `${formattedVersion}-${release}.${formattedDate}-${shortSha}`;
 };
+
+export const extractBuildDate = (version: string): string | undefined => {
+  const match = version.match(/-(\d{4})(\d{2})(\d{2})-/);
+  return match ? `${match[1]}-${match[2]}-${match[3]}` : undefined;
+};
+
+export const extractCommitHash = (version: string): string | undefined => {
+  const match = version.match(/-\d{8}-([a-f0-9]+)$/);
+  return match ? match[1] : undefined;
+};

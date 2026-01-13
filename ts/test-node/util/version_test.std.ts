@@ -13,6 +13,8 @@ import {
   isBeta,
   isProduction,
   isStaging,
+  extractBuildDate,
+  extractCommitHash,
 } from '../../util/version.std.js';
 
 describe('version utilities', () => {
@@ -197,6 +199,59 @@ describe('version utilities', () => {
       });
 
       assert.isTrue(semver.lt(actualEarlier, actualLater));
+    });
+  });
+
+  describe('extractBuildDate', () => {
+    it('returns undefined for versions without build metadata', () => {
+      assert.isUndefined(extractBuildDate('7.84.0'));
+      assert.isUndefined(extractBuildDate('7.84.0-beta.1'));
+      assert.isUndefined(extractBuildDate('1.2.3-alpha.1'));
+    });
+
+    it('extracts build date from version with build metadata', () => {
+      assert.strictEqual(
+        extractBuildDate('7.84.0-20260114-abc1234'),
+        '2026-01-14'
+      );
+      assert.strictEqual(
+        extractBuildDate('7.84.0-beta-20251225-def5678'),
+        '2025-12-25'
+      );
+      assert.strictEqual(
+        extractBuildDate('1.0.0-20210101-1234567'),
+        '2021-01-01'
+      );
+    });
+  });
+
+  describe('extractCommitHash', () => {
+    it('returns undefined for versions without build metadata', () => {
+      assert.isUndefined(extractCommitHash('7.84.0'));
+      assert.isUndefined(extractCommitHash('7.84.0-beta.1'));
+      assert.isUndefined(extractCommitHash('1.2.3-alpha.1'));
+    });
+
+    it('extracts commit hash from version with build metadata', () => {
+      assert.strictEqual(
+        extractCommitHash('7.84.0-20260114-abc1234'),
+        'abc1234'
+      );
+      assert.strictEqual(
+        extractCommitHash('7.84.0-beta-20251225-def5678'),
+        'def5678'
+      );
+      assert.strictEqual(
+        extractCommitHash('1.0.0-20210101-1234567'),
+        '1234567'
+      );
+    });
+
+    it('handles longer commit hashes', () => {
+      assert.strictEqual(
+        extractCommitHash('7.84.0-20260114-abc1234def'),
+        'abc1234def'
+      );
     });
   });
 });

@@ -31,6 +31,8 @@ createRoot(app).render(
           arch={AboutWindowProps.arch}
           i18n={i18n}
           version={window.SignalContext.getVersion()}
+          buildDate={window.SignalContext.getBuildDate()}
+          buildCommitHash={window.SignalContext.getBuildCommitHash()}
         />
       </FunDefaultEnglishEmojiLocalizationProvider>
     </AxoProvider>
