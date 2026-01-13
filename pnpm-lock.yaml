@@ -421,9 +421,6 @@ importers:
       '@electron/fuses':
         specifier: 1.5.0
         version: 1.5.0
-      '@electron/notarize':
-        specifier: 2.1.0
-        version: 2.1.0
       '@electron/symbolicate-mac':
         specifier: 2.3.1
         version: 2.3.1
@@ -1195,10 +1192,6 @@ packages:
     resolution: {integrity: sha512-OhO6fwqpetMO1vWI3+J8mb3a4s4A405tgKoUCJsgd4nyQDdFh0VvZm+gj/Cc70iRLQoIYUfSaAgYSVwmLsQHig==}
     engines: {node: '>=12.13.0'}
     hasBin: true
-
-  '@electron/notarize@2.1.0':
-    resolution: {integrity: sha512-Q02xem1D0sg4v437xHgmBLxI2iz/fc0D4K7fiVWHa/AnW8o7D751xyKNXgziA6HrTOme9ul1JfWN5ark8WH1xA==}
-    engines: {node: '>= 10.0.0'}
 
   '@electron/notarize@2.5.0':
     resolution: {integrity: sha512-jNT8nwH1f9X5GEITXaQ8IF/KdskvIkOFfB2CvwumsveVidzpSc+mvhhTMdAGSYF3O+Nq49lJ7y+ssODRXu06+A==}
@@ -11373,14 +11366,6 @@ snapshots:
       which: 2.0.2
     transitivePeerDependencies:
       - bluebird
-      - supports-color
-
-  '@electron/notarize@2.1.0':
-    dependencies:
-      debug: 4.3.7(supports-color@8.1.1)
-      fs-extra: 9.1.0
-      promise-retry: 2.0.1
-    transitivePeerDependencies:
       - supports-color
 
   '@electron/notarize@2.5.0':
