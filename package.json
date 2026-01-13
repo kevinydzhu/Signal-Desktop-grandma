@@ -24,7 +24,6 @@
     "generate:phase-1:bundle": "run-s build-protobuf build:esbuild:bundle",
     "build-release": "pnpm run build",
     "sign-release": "node ts/updater/generateSignature.js",
-    "notarize": "echo 'No longer necessary'",
     "get-strings": "ts-node ts/scripts/get-strings.node.ts && ts-node ts/scripts/gen-nsis-script.node.ts && ts-node ts/scripts/gen-locales-config.node.ts && run-p get-strings:locales get-strings:countries get-strings:emoji mark-unusued-strings-deleted && run-p build:compact-locales",
     "get-strings:locales": "ts-node ./ts/scripts/build-localized-display-names.node.ts locales ts/scripts/locale-data/locale-display-names.csv build/locale-display-names.json",
     "get-strings:countries": "ts-node ./ts/scripts/build-localized-display-names.node.ts countries ts/scripts/locale-data/country-display-names.csv build/country-display-names.json",
@@ -234,7 +233,6 @@
     "@babel/preset-react": "7.25.9",
     "@babel/preset-typescript": "7.26.0",
     "@electron/fuses": "1.5.0",
-    "@electron/notarize": "2.1.0",
     "@electron/symbolicate-mac": "2.3.1",
     "@formatjs/intl": "2.10.14",
     "@indutny/parallel-prettier": "3.0.0",
@@ -437,19 +435,12 @@
       "entitlements": "./build/entitlements.mac.plist",
       "entitlementsInherit": "./build/entitlements.mac.inherit.plist",
       "icon": "build/icons/mac/icon.icns",
-      "publish": [
-        {
-          "provider": "generic",
-          "url": "https://updates.signal.org/desktop"
-        }
-      ],
       "mergeASARs": true,
       "releaseInfo": {
         "vendor": {
           "minOSVersion": "21.0.1"
         }
       },
-      "sign": "./ts/scripts/sign-macos.node.js",
       "singleArchFiles": "node_modules/@signalapp/{libsignal-client/prebuilds/**,ringrtc/build/**,sqlcipher/prebuilds/**}",
       "target": [
         {
@@ -472,32 +463,13 @@
       }
     },
     "win": {
-      "signtoolOptions": {
-        "certificateSubjectName": "Signal Messenger, LLC",
-        "certificateSha1": "8D5E3CD800736C5E1FE459A1F5AA48287D4F6EC6",
-        "publisherName": "Signal Messenger, LLC",
-        "sign": "./ts/scripts/sign-windows.node.js",
-        "signingHashAlgorithms": [
-          "sha256"
-        ]
-      },
       "artifactName": "${name}-win-${arch}-${version}.${ext}",
       "icon": "build/icons/win/icon.ico",
-      "publish": [
-        {
-          "provider": "generic",
-          "url": "https://updates.signal.org/desktop"
-        }
-      ],
       "releaseInfo": {
         "vendor": {
           "minOSVersion": "10.0.10240"
         }
       },
-      "signExts": [
-        ".dll",
-        ".node"
-      ],
       "target": [
         "nsis"
       ],
@@ -570,9 +542,7 @@
       ]
     },
     "artifactBuildCompleted": "ts/scripts/artifact-build-completed.node.js",
-    "afterSign": "ts/scripts/after-sign.node.js",
     "afterPack": "ts/scripts/after-pack.node.js",
-    "afterAllArtifactBuild": "ts/scripts/after-all-artifact-build.node.js",
     "asar": {
       "smartUnpack": false
     },
