@@ -56,6 +56,7 @@ import { useGlobalModalActions } from '../ducks/globalModals.preload.js';
 import { isLonelyGroup } from '../ducks/callingHelpers.std.js';
 import { getActiveProfile } from '../selectors/notificationProfiles.dom.js';
 import { isOnline as isWebAPIOnline } from '../../textsecure/WebAPI.preload.js';
+import { itemStorage } from '../../textsecure/Storage.preload.js';
 
 const { memoize } = lodash;
 
@@ -395,6 +396,8 @@ export const SmartCallManager = memo(function SmartCallManager() {
   const me = useSelector(getMe);
   const activeNotificationProfile = useSelector(getActiveProfile);
 
+  const autoAnswerEnabled = itemStorage.get('auto-answer-calls', false);
+
   const [isOnline, setIsOnline] = useState(isWebAPIOnline() ?? false);
 
   useEffect(() => {
@@ -459,6 +462,7 @@ export const SmartCallManager = memo(function SmartCallManager() {
       acceptCall={acceptCall}
       activeCall={activeCall}
       activeNotificationProfile={activeNotificationProfile}
+      autoAnswerEnabled={autoAnswerEnabled}
       approveUser={approveUser}
       availableCameras={availableCameras}
       batchUserAction={batchUserAction}

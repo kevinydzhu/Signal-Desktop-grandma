@@ -90,6 +90,7 @@ export type CallingImageDataCache = Map<number, ImageData>;
 export type PropsType = {
   activeCall?: ActiveCallType;
   activeNotificationProfile: NotificationProfileType | undefined;
+  autoAnswerEnabled?: boolean;
   availableCameras: Array<MediaDeviceInfo>;
   callLink: CallLinkType | undefined;
   cancelCall: (_: CancelCallType) => void;
@@ -546,6 +547,7 @@ export function CallManager({
   acceptCall,
   activeCall,
   activeNotificationProfile,
+  autoAnswerEnabled,
   approveUser,
   availableCameras,
   batchUserAction,
@@ -744,6 +746,7 @@ export function CallManager({
     return (
       <IncomingCallBar
         acceptCall={acceptCall}
+        autoAnswerEnabled={autoAnswerEnabled}
         bounceAppIconStart={bounceAppIconStart}
         bounceAppIconStop={bounceAppIconStop}
         declineCall={declineCall}

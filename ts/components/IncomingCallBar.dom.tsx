@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ReactNode } from 'react';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Avatar, AvatarSize } from './Avatar.dom.js';
 import { Tooltip } from './Tooltip.dom.js';
 import { I18n } from './I18n.dom.js';
@@ -26,6 +26,7 @@ import { UserText } from './UserText.dom.js';
 
 export type PropsType = {
   acceptCall: (_: AcceptCallType) => void;
+  autoAnswerEnabled?: boolean;
   declineCall: (_: DeclineCallType) => void;
   i18n: LocalizerType;
   conversation: Pick<
@@ -187,6 +188,7 @@ function GroupCallMessage({
 export function IncomingCallBar(props: PropsType): React.JSX.Element | null {
   const {
     acceptCall,
+    autoAnswerEnabled,
     bounceAppIconStart,
     bounceAppIconStop,
     conversation,
@@ -269,6 +271,35 @@ export function IncomingCallBar(props: PropsType): React.JSX.Element | null {
   );
   useKeyboardShortcuts(incomingCallShortcuts);
 
+  // Auto-answer countdown (only for direct calls when enabled)
+  const shouldAutoAnswer =
+    autoAnswerEnabled && props.callMode === CallMode.Direct;
+  const [countdown, setCountdown] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!shouldAutoAnswer) {
+      return;
+    }
+
+    setCountdown(3);
+
+    const intervalId = setInterval(() => {
+      setCountdown(prev => {
+        if (prev == null || prev <= 1) {
+          clearInterval(intervalId);
+          // Auto-answer with video matching the call type
+          acceptCall({ conversationId, asVideoCall: isVideoCall });
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [shouldAutoAnswer, conversationId, isVideoCall, acceptCall]);
+
   return (
     <div className="IncomingCallBar__container">
       <div className="IncomingCallBar__bar">
@@ -298,6 +329,13 @@ export function IncomingCallBar(props: PropsType): React.JSX.Element | null {
             >
               {messageNode}
             </div>
+            {countdown != null && (
+              <div className="IncomingCallBar__countdown">
+                {i18n('icu:IncomingCallBar__auto-answer-countdown', {
+                  seconds: String(countdown),
+                })}
+              </div>
+            )}
           </div>
         </div>
         <div className="IncomingCallBar__actions">
