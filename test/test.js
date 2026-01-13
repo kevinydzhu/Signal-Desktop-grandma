@@ -19,7 +19,8 @@ window.Events = {
 };
 
 /* Delete the database before running any tests */
-before(async () => {
+before(async function () {
+  this.timeout(30000);
   await window.testUtilities.initialize();
 });
 
