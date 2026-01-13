@@ -71,9 +71,7 @@ async function launchElectron(
   }
 
   console.log(
-    `[Worker ${worker}] Launching electron for tests` +
-      (attempt !== 1 ? `, attempt #${attempt}` : '') +
-      ` (platform: ${process.platform}, shell: ${process.platform === 'win32'})`
+    `[Worker ${worker}] Launching electron for tests${attempt !== 1 ? `, attempt #${attempt}` : ''} (platform: ${process.platform}, shell: ${process.platform === 'win32'})`
   );
 
   const storagePath = await mkdtemp(join(tmpdir(), 'signal-test-'));
@@ -107,7 +105,9 @@ async function launchElectron(
   });
 
   proc.on('spawn', () => {
-    console.log(`[Worker ${worker}] Electron process spawned (pid: ${proc.pid})`);
+    console.log(
+      `[Worker ${worker}] Electron process spawned (pid: ${proc.pid})`
+    );
   });
 
   proc.on('error', err => {
@@ -152,7 +152,9 @@ async function launchElectron(
           .on('data', line => {
             lineCount += 1;
             if (lineCount <= 5) {
-              console.log(`[Worker ${worker}] stdout line ${lineCount}: ${line.slice(0, 200)}`);
+              console.log(
+                `[Worker ${worker}] stdout line ${lineCount}: ${line.slice(0, 200)}`
+              );
             }
 
             if (!line) {

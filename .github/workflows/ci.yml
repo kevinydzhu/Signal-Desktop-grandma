@@ -264,15 +264,24 @@ jobs:
         env:
           NPM_CONFIG_LOGLEVEL: verbose
 
+      - name: Rebuild native modules for Electron
+        run: node node_modules/.pnpm/@electron+rebuild@3.7.2/node_modules/@electron/rebuild/lib/cli.js --force --verbose
+
       - run: pnpm run generate
       - run: pnpm run test-node
+
+      - run: pnpm run test-electron
+        env:
+          ARTIFACTS_DIR: artifacts/windows
+          WORKER_COUNT: 4
+        timeout-minutes: 5
 
       - name: Create bundle
         run: pnpm run build:esbuild:prod
       - name: Create preload cache
         run: pnpm run build:preload-cache
         env:
-          ARTIFACTS_DIR: artifacts/win
+          ARTIFACTS_DIR: artifacts/windows
 
       - name: Build with NSIS
         run: pnpm run build:release --publish=never --arm64 --x64
@@ -285,11 +294,6 @@ jobs:
         env:
           DISABLE_INSPECT_FUSE: on
 
-      - run: pnpm run test-electron
-        env:
-          ARTIFACTS_DIR: artifacts/windows
-          WORKER_COUNT: 4
-        timeout-minutes: 10
       - run: pnpm run test-release
         env:
           SIGNAL_ENV: production
