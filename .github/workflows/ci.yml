@@ -7,77 +7,77 @@ on:
     branches:
       - development
       - main
-      - '[0-9]+.[0-9]+.x'
+      - "[0-9]+.[0-9]+.x"
   pull_request:
 
 jobs:
   lint:
-    runs-on: ubuntu-22.04-8-cores
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
 
     steps:
-    - run: lsb_release -a
-    - run: uname -a
-    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-    - name: Setup pnpm
-      uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
-    - name: Setup node.js
-      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
-      with:
-        node-version-file: '.nvmrc'
-        cache: 'pnpm'
-        cache-dependency-path: 'pnpm-lock.yaml'
-    - name: Cache .electron-gyp
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-      with:
-        path: ~/.electron-gyp
-        key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: lsb_release -a
+      - run: uname -a
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+      - name: Setup node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+      - name: Cache .electron-gyp
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.electron-gyp
+          key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
-    # - name: Setup sccache
-    #   uses: mozilla-actions/sccache-action@054db53350805f83040bf3e6e9b8cf5a139aa7c9 # v0.0.7
-    # - name: Restore sccache
-    #   uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-    #   with:
-    #     path: ${{ env.SCCACHE_PATH }}
-    #     key: sccache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'patches/**') }}
+      # - name: Setup sccache
+      #   uses: mozilla-actions/sccache-action@054db53350805f83040bf3e6e9b8cf5a139aa7c9 # v0.0.7
+      # - name: Restore sccache
+      #   uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      #   with:
+      #     path: ${{ env.SCCACHE_PATH }}
+      #     key: sccache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'patches/**') }}
 
-    - name: Restore cached .eslintcache and tsconfig.tsbuildinfo
-      uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-      id: cache-lint
-      with:
-        path: |
-          .eslintcache
-          tsconfig.tsbuildinfo
-        key: lint-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'patches/**', '.eslintrc.js', '.eslint/**', 'tsconfig.json') }}
+      - name: Restore cached .eslintcache and tsconfig.tsbuildinfo
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        id: cache-lint
+        with:
+          path: |
+            .eslintcache
+            tsconfig.tsbuildinfo
+          key: lint-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'patches/**', '.eslintrc.js', '.eslint/**', 'tsconfig.json') }}
 
-    - name: Install Desktop node_modules
-      run: pnpm install
-      env:
-        # CC: sccache gcc
-        # CXX: sccache g++
-        # SCCACHE_GHA_ENABLED: "true"
-        NPM_CONFIG_LOGLEVEL: verbose
+      - name: Install Desktop node_modules
+        run: pnpm install
+        env:
+          # CC: sccache gcc
+          # CXX: sccache g++
+          # SCCACHE_GHA_ENABLED: "true"
+          NPM_CONFIG_LOGLEVEL: verbose
 
-    - run: pnpm run generate
-    - run: pnpm run lint
-    - run: pnpm run lint-deps
-    - run: pnpm run lint-license-comments
+      - run: pnpm run generate
+      - run: pnpm run lint
+      - run: pnpm run lint-deps
+      - run: pnpm run lint-license-comments
 
-    - name: Check acknowledgments file is up to date
-      run: pnpm run build:acknowledgments
-      env:
-        REQUIRE_SIGNAL_LIB_FILES: 1
+      - name: Check acknowledgments file is up to date
+        run: pnpm run build:acknowledgments
+        env:
+          REQUIRE_SIGNAL_LIB_FILES: 1
 
-    - run: git diff --exit-code
+      - run: git diff --exit-code
 
-    - name: Update cached .eslintcache and tsconfig.tsbuildinfo
-      uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-      if: github.ref == 'refs/heads/main'
-      with:
-        path: |
-          .eslintcache
-          tsconfig.tsbuildinfo
-        key: ${{ steps.cache-lint.outputs.cache-primary-key }}
+      - name: Update cached .eslintcache and tsconfig.tsbuildinfo
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: |
+            .eslintcache
+            tsconfig.tsbuildinfo
+          key: ${{ steps.cache-lint.outputs.cache-primary-key }}
 
   macos:
     needs: lint
@@ -86,212 +86,318 @@ jobs:
     timeout-minutes: 30
 
     steps:
-    - run: uname -a
-    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-    - name: Setup pnpm
-      uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
-    - name: Setup node.js
-      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
-      with:
-        node-version-file: '.nvmrc'
-        cache: 'pnpm'
-        cache-dependency-path: 'pnpm-lock.yaml'
-    - name: Cache .electron-gyp
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-      with:
-        path: ~/.electron-gyp
-        key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: uname -a
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+      - name: Setup node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+      - name: Cache .electron-gyp
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.electron-gyp
+          key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
-    # - name: Setup sccache
-    #   uses: mozilla-actions/sccache-action@054db53350805f83040bf3e6e9b8cf5a139aa7c9 # v0.0.7
-    # - name: Restore sccache
-    #   uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-    #   with:
-    #     path: ${{ env.SCCACHE_PATH }}
-    #     key: sccache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'patches/**') }}
+      # - name: Setup sccache
+      #   uses: mozilla-actions/sccache-action@054db53350805f83040bf3e6e9b8cf5a139aa7c9 # v0.0.7
+      # - name: Restore sccache
+      #   uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      #   with:
+      #     path: ${{ env.SCCACHE_PATH }}
+      #     key: sccache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'patches/**') }}
 
-    - name: Install Desktop node_modules
-      run: pnpm install
-      env:
-        # CC: sccache clang
-        # CXX: sccache clang++
-        # SCCACHE_GHA_ENABLED: "true"
-        NPM_CONFIG_LOGLEVEL: verbose
+      - name: Install Desktop node_modules
+        run: pnpm install
+        env:
+          # CC: sccache clang
+          # CXX: sccache clang++
+          # SCCACHE_GHA_ENABLED: "true"
+          NPM_CONFIG_LOGLEVEL: verbose
 
-    - run: pnpm run generate
-    - run: pnpm run prepare-beta-build
-    - run: pnpm run test-node
-    - run: pnpm run test-electron
-      env:
-        ARTIFACTS_DIR: artifacts/macos
-        WORKER_COUNT: 4
-      timeout-minutes: 5
-    - run: pnpm run build
-      env:
-        DISABLE_INSPECT_FUSE: on
-        ARTIFACTS_DIR: artifacts/macos
-    - run: pnpm run test-release
-      env:
-        NODE_ENV: production
+      - run: pnpm run generate
+      - run: pnpm run test-node
+      - run: pnpm run test-electron
+        env:
+          ARTIFACTS_DIR: artifacts/macos
+          WORKER_COUNT: 4
+        timeout-minutes: 5
+      - run: pnpm run build
+        env:
+          DISABLE_INSPECT_FUSE: on
+          ARTIFACTS_DIR: artifacts/macos
+      - run: pnpm run test-release
+        env:
+          NODE_ENV: production
 
-    - name: Upload artifacts on failure
-      if: failure()
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-      with:
-        path: artifacts
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          path: artifacts
+
+      - name: Upload macOS release artifacts
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: macos-artifacts
+          path: |
+            release/*.zip
+            release/*.dmg
+          retention-days: 2
+          if-no-files-found: error
 
   linux:
     needs: lint
-    runs-on: ubuntu-22.04-8-cores
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
 
     steps:
-    - run: lsb_release -a
-    - run: uname -a
-    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-    - name: Setup pnpm
-      uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
-    - name: Setup node.js
-      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
-      with:
-        node-version-file: '.nvmrc'
-        cache: 'pnpm'
-        cache-dependency-path: 'pnpm-lock.yaml'
-    - name: Cache .electron-gyp
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-      with:
-        path: ~/.electron-gyp
-        key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: lsb_release -a
+      - run: uname -a
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+      - name: Setup node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+      - name: Cache .electron-gyp
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.electron-gyp
+          key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
-    - name: Install xvfb and libpulse0
-      run: sudo apt-get install xvfb libpulse0 || (sudo apt-get update && sudo apt-get install xvfb libpulse0)
+      - name: Install xvfb and libpulse0
+        run: sudo apt-get install xvfb libpulse0 || (sudo apt-get update && sudo apt-get install xvfb libpulse0)
 
-    # - name: Setup sccache
-    #   uses: mozilla-actions/sccache-action@054db53350805f83040bf3e6e9b8cf5a139aa7c9 # v0.0.7
-    # - name: Restore sccache
-    #   uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-    #   with:
-    #     path: ${{ env.SCCACHE_PATH }}
-    #     key: sccache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'patches/**') }}
+      # - name: Setup sccache
+      #   uses: mozilla-actions/sccache-action@054db53350805f83040bf3e6e9b8cf5a139aa7c9 # v0.0.7
+      # - name: Restore sccache
+      #   uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      #   with:
+      #     path: ${{ env.SCCACHE_PATH }}
+      #     key: sccache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'patches/**') }}
 
-    - name: Install Desktop node_modules
-      run: pnpm install
-      env:
-        # CC: sccache gcc
-        # CXX: sccache g++
-        # SCCACHE_GHA_ENABLED: "true"
-        NPM_CONFIG_LOGLEVEL: verbose
+      - name: Install Desktop node_modules
+        run: pnpm install
+        env:
+          # CC: sccache gcc
+          # CXX: sccache g++
+          # SCCACHE_GHA_ENABLED: "true"
+          NPM_CONFIG_LOGLEVEL: verbose
 
-    - run: pnpm run generate
-    - run: pnpm run prepare-beta-build
+      - run: pnpm run generate
 
-    - name: Create bundle
-      run: pnpm run build:esbuild:prod
-    - name: Create preload cache
-      run: xvfb-run --auto-servernum pnpm run build:preload-cache
-      env:
-        ARTIFACTS_DIR: artifacts/linux
+      - name: Create bundle
+        run: pnpm run build:esbuild:prod
+      - name: Create preload cache
+        run: xvfb-run --auto-servernum pnpm run build:preload-cache
+        env:
+          ARTIFACTS_DIR: artifacts/linux
 
-    - name: Build with packaging .deb file
-      run: pnpm run build:release --publish=never
-      if: github.ref == 'refs/heads/main'
-      env:
-        # CC: sccache gcc
-        # CXX: sccache g++
-        # SCCACHE_GHA_ENABLED: "true"
-        DISABLE_INSPECT_FUSE: on
-    - name: Build without packaging .deb file
-      run: pnpm run build:release --linux dir
-      if: github.ref != 'refs/heads/main'
-      env:
-        # CC: sccache gcc
-        # CXX: sccache g++
-        # SCCACHE_GHA_ENABLED: "true"
-        DISABLE_INSPECT_FUSE: on
+      - name: Build with packaging .deb file
+        run: pnpm run build:release --publish=never
+        if: github.ref == 'refs/heads/main'
+        env:
+          # CC: sccache gcc
+          # CXX: sccache g++
+          # SCCACHE_GHA_ENABLED: "true"
+          DISABLE_INSPECT_FUSE: on
+      - name: Build without packaging .deb file
+        run: pnpm run build:release --linux dir
+        if: github.ref != 'refs/heads/main'
+        env:
+          # CC: sccache gcc
+          # CXX: sccache g++
+          # SCCACHE_GHA_ENABLED: "true"
+          DISABLE_INSPECT_FUSE: on
 
-    - run: xvfb-run --auto-servernum pnpm run test-node
+      - run: xvfb-run --auto-servernum pnpm run test-node
 
-    - run: xvfb-run --auto-servernum pnpm run test-electron
-      timeout-minutes: 5
-      env:
-        ARTIFACTS_DIR: artifacts/linux
-        LANG: en_US
-        LANGUAGE: en_US
-        WORKER_COUNT: 8
-    - run: xvfb-run --auto-servernum pnpm run test-release
-      env:
-        NODE_ENV: production
+      - run: xvfb-run --auto-servernum pnpm run test-electron
+        timeout-minutes: 5
+        env:
+          ARTIFACTS_DIR: artifacts/linux
+          LANG: en_US
+          LANGUAGE: en_US
+          WORKER_COUNT: 8
+      - run: xvfb-run --auto-servernum pnpm run test-release
+        env:
+          NODE_ENV: production
 
-    - name: Upload artifacts on failure
-      if: failure()
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-      with:
-        path: artifacts
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          path: artifacts
+
+      - name: Upload Linux release artifacts
+        if: success() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: linux-artifacts
+          path: release/*.deb
+          retention-days: 2
+          if-no-files-found: error
 
   windows:
     needs: lint
-    runs-on: windows-latest-8-cores
+    runs-on: windows-latest
     timeout-minutes: 30
 
     steps:
-    - run: systeminfo
-    - run: git config --global core.autocrlf false
-    - run: git config --global core.eol lf
-    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-    - name: Setup pnpm
-      uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
-    - name: Setup node.js
-      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
-      with:
-        node-version-file: '.nvmrc'
-        cache: 'pnpm'
-        cache-dependency-path: 'pnpm-lock.yaml'
+      - run: systeminfo
+      - run: git config --global core.autocrlf false
+      - run: git config --global core.eol lf
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+      - name: Setup node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
 
-    - name: Install Desktop node_modules
-      run: pnpm install
-      env:
-        NPM_CONFIG_LOGLEVEL: verbose
+      - name: Install Desktop node_modules
+        run: pnpm install
+        env:
+          NPM_CONFIG_LOGLEVEL: verbose
 
-    - run: pnpm run generate
-    - run: pnpm run test-node
-    - run: pnpm run prepare-beta-build
+      - run: pnpm run generate
+      - run: pnpm run test-node
 
-    - name: Create bundle
-      run: pnpm run build:esbuild:prod
-    - name: Create preload cache
-      run: pnpm run build:preload-cache
-      env:
-        ARTIFACTS_DIR: artifacts/win
+      - name: Create bundle
+        run: pnpm run build:esbuild:prod
+      - name: Create preload cache
+        run: pnpm run build:preload-cache
+        env:
+          ARTIFACTS_DIR: artifacts/win
 
-    - name: Build with NSIS
-      run: pnpm run build:release
-      if: github.ref == 'refs/heads/main'
-      env:
-        DISABLE_INSPECT_FUSE: on
-    - name: Build without NSIS
-      run: pnpm run build:release --win dir
-      if: github.ref != 'refs/heads/main'
-      env:
-        DISABLE_INSPECT_FUSE: on
+      - name: Build with NSIS
+        run: pnpm run build:release --arm64 --x64
+        if: github.ref == 'refs/heads/main'
+        env:
+          DISABLE_INSPECT_FUSE: on
+      - name: Build without NSIS
+        run: pnpm run build:release --win dir
+        if: github.ref != 'refs/heads/main'
+        env:
+          DISABLE_INSPECT_FUSE: on
 
-    - run: pnpm run test-electron
-      env:
-        ARTIFACTS_DIR: artifacts/windows
-        WORKER_COUNT: 4
-      timeout-minutes: 5
-    - run: pnpm run test-release
-      env:
-        SIGNAL_ENV: production
+      - run: pnpm run test-electron
+        env:
+          ARTIFACTS_DIR: artifacts/windows
+          WORKER_COUNT: 4
+        timeout-minutes: 5
+      - run: pnpm run test-release
+        env:
+          SIGNAL_ENV: production
 
-    - name: Upload artifacts on failure
-      if: failure()
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-      with:
-        path: artifacts
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          path: artifacts
+
+      - name: Upload Windows release artifacts
+        if: success() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-artifacts
+          path: release/*.exe
+          retention-days: 2
+          if-no-files-found: error
+
+  release:
+    needs: [macos, linux, windows]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4
+        with:
+          path: artifacts
+
+      - name: List downloaded artifacts
+        run: find artifacts -type f | head -50
+
+      - name: Get version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Delete existing main release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release delete main --cleanup-tag --yes || true
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create main \
+            --title "Latest Build (v${{ steps.version.outputs.version }})" \
+            --notes "Automated build from commit ${{ github.sha }}" \
+            --latest \
+            artifacts/macos-artifacts/* \
+            artifacts/linux-artifacts/* \
+            artifacts/windows-artifacts/*
+
+      - name: Cleanup old releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RELEASES=$(gh release list --json tagName,createdAt --limit 100)
+
+          TO_DELETE=$(node -e "
+          const releases = JSON.parse(process.argv[2] || '[]');
+          const now = new Date();
+          const threeMonthsAgo = new Date(now);
+          threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+          const keep = new Set();
+          keep.add('main');
+
+          const nonMainReleases = releases.filter(r => r.tagName !== 'main');
+          nonMainReleases.slice(0, 5).forEach(r => keep.add(r.tagName));
+
+          const monthlyLatest = {};
+          nonMainReleases.forEach(r => {
+            const date = new Date(r.createdAt);
+            if (date >= threeMonthsAgo) {
+              const monthKey = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+              if (!monthlyLatest[monthKey]) {
+                monthlyLatest[monthKey] = r.tagName;
+              }
+            }
+          });
+          Object.values(monthlyLatest).forEach(tag => keep.add(tag));
+
+          const toDelete = releases.filter(r => !keep.has(r.tagName)).map(r => r.tagName);
+          toDelete.forEach(tag => console.log(tag));
+          " -- "$RELEASES")
+
+          echo "$TO_DELETE" | while read -r tag; do
+            if [ -n "$tag" ]; then
+              echo "Deleting release: $tag"
+              gh release delete "$tag" --cleanup-tag --yes || true
+            fi
+          done
 
   sticker-creator:
     name: Sticker Creator
-    runs-on: ubuntu-22.04-8-cores
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
 
     defaults:
@@ -299,31 +405,31 @@ jobs:
         working-directory: sticker-creator
 
     steps:
-    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-    - name: Setup pnpm
-      uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
-    - name: Setup node.js
-      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
-      with:
-        node-version-file: '.nvmrc'
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+      - name: Setup node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+        with:
+          node-version-file: ".nvmrc"
 
-    - name: Install Sticker Creator node_modules
-      run: pnpm install
+      - name: Install Sticker Creator node_modules
+        run: pnpm install
 
-    - name: Build Sticker Creator
-      run: pnpm run build
+      - name: Build Sticker Creator
+        run: pnpm run build
 
-    - name: Check Sticker Creator types
-      run: pnpm run check:types
+      - name: Check Sticker Creator types
+        run: pnpm run check:types
 
-    - name: Check Sticker Creator formatting
-      run: pnpm run prettier:check
+      - name: Check Sticker Creator formatting
+        run: pnpm run prettier:check
 
-    - name: Check Sticker Creator linting
-      run: pnpm run lint
+      - name: Check Sticker Creator linting
+        run: pnpm run lint
 
-    - name: Run tests
-      run: pnpm test -- --run
+      - name: Run tests
+        run: pnpm test -- --run
 
   check-min-os-version:
     needs: lint
@@ -331,34 +437,34 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        os: [ubuntu-22.04-8-cores, macos-latest]
+        os: [ubuntu-22.04, macos-latest]
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
 
     steps:
-    - run: uname -a
-    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-    - name: Setup pnpm
-      uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
-    - name: Setup node.js
-      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
-      with:
-        node-version-file: '.nvmrc'
-        cache: 'pnpm'
-        cache-dependency-path: 'pnpm-lock.yaml'
-    - name: Cache .electron-gyp
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-      with:
-        path: ~/.electron-gyp
-        key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: uname -a
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+      - name: Setup node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+      - name: Cache .electron-gyp
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.electron-gyp
+          key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
-    - name: Install Desktop node_modules
-      run: pnpm install
-      env:
-        NPM_CONFIG_LOGLEVEL: verbose
+      - name: Install Desktop node_modules
+        run: pnpm install
+        env:
+          NPM_CONFIG_LOGLEVEL: verbose
 
-    - run: pnpm generate:phase-0
-    - name: Run OS version check
-      run: |
-        node ts/scripts/check-min-os-version.node.js
+      - run: pnpm generate:phase-0
+      - name: Run OS version check
+        run: |
+          node ts/scripts/check-min-os-version.node.js
