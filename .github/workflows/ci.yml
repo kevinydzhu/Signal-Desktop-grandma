@@ -395,42 +395,6 @@ jobs:
             fi
           done
 
-  sticker-creator:
-    name: Sticker Creator
-    runs-on: ubuntu-22.04
-    timeout-minutes: 30
-
-    defaults:
-      run:
-        working-directory: sticker-creator
-
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Setup pnpm
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
-      - name: Setup node.js
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
-        with:
-          node-version-file: ".nvmrc"
-
-      - name: Install Sticker Creator node_modules
-        run: pnpm install
-
-      - name: Build Sticker Creator
-        run: pnpm run build
-
-      - name: Check Sticker Creator types
-        run: pnpm run check:types
-
-      - name: Check Sticker Creator formatting
-        run: pnpm run prettier:check
-
-      - name: Check Sticker Creator linting
-        run: pnpm run lint
-
-      - name: Run tests
-        run: pnpm test -- --run
-
   check-min-os-version:
     needs: lint
 

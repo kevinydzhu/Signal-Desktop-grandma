@@ -72,6 +72,7 @@ Redux with the ducks pattern. Each duck in `ts/state/ducks/` contains actions an
 ### Database
 
 SQLite via `@signalapp/sqlcipher` with encrypted storage. The `ts/sql/` directory contains:
+
 - `Client.preload.ts` - Renderer-side database client
 - `Server.node.ts` - Main process database server
 - `migrations/` - Database schema migrations
@@ -79,6 +80,7 @@ SQLite via `@signalapp/sqlcipher` with encrypted storage. The `ts/sql/` director
 ### Protocol & Messaging
 
 The `ts/textsecure/` directory implements the Signal protocol:
+
 - `WebAPI.preload.ts` - HTTP API client
 - `MessageReceiver.preload.ts` - Incoming message processing
 - `SendMessage.preload.ts` - Outgoing message handling
@@ -95,6 +97,7 @@ Strings are in `_locales/en/messages.json`. Never hardcode user-visible strings 
 - Storybook: `*.stories.tsx` files alongside components
 
 Run a single test file:
+
 ```bash
 pnpm run test-node -- --grep "pattern"
 ```
