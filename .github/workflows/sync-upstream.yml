@@ -1,0 +1,102 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 6 1,15 * *'  # 6:00 AM UTC on 1st and 15th of each month
+  workflow_dispatch:         # Allow manual trigger
+
+permissions:
+  contents: write        # Push branches, create tags
+  pull-requests: write   # Create and manage PRs
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # Full history needed for rebase
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Setup upstream and fetch tags
+        run: make setup-upstream fetch-upstream
+
+      - name: Find latest stable version
+        id: version
+        run: |
+          LATEST=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          echo "Latest stable version: $LATEST"
+          echo "tag=$LATEST" >> $GITHUB_OUTPUT
+
+      - name: Check if already synced
+        id: check
+        run: |
+          if git merge-base --is-ancestor ${{ steps.version.outputs.tag }} HEAD; then
+            echo "Already up to date with ${{ steps.version.outputs.tag }}"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for existing PR
+        if: steps.check.outputs.skip != 'true'
+        id: existing_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="sync/${{ steps.version.outputs.tag }}"
+          if gh pr list --head "$BRANCH" --json number --jq '.[0].number' | grep -q .; then
+            echo "PR already exists for $BRANCH"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create sync branch and rebase
+        if: steps.check.outputs.skip != 'true' && steps.existing_pr.outputs.skip != 'true'
+        id: rebase
+        run: |
+          BRANCH="sync/${{ steps.version.outputs.tag }}"
+          git checkout -b "$BRANCH"
+
+          if make sync UPSTREAM_TAG=${{ steps.version.outputs.tag }}; then
+            echo "Rebase successful"
+            echo "success=true" >> $GITHUB_OUTPUT
+            echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          else
+            echo "Rebase failed, aborting"
+            git rebase --abort || true
+            echo "success=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push sync branch
+        if: steps.rebase.outputs.success == 'true'
+        run: |
+          git push --force-with-lease origin ${{ steps.rebase.outputs.branch }}
+
+      - name: Create draft PR
+        if: steps.rebase.outputs.success == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --draft \
+            --title "Sync upstream ${{ steps.version.outputs.tag }}" \
+            --body "$(cat <<'EOF'
+          ## Upstream Sync
+
+          This PR rebases the fork onto upstream Signal-Desktop ${{ steps.version.outputs.tag }}.
+
+          **Upstream release:** https://github.com/signalapp/Signal-Desktop/releases/tag/${{ steps.version.outputs.tag }}
+
+          ---
+          🤖 This PR was automatically created by the sync-upstream workflow.
+          EOF
+          )"
