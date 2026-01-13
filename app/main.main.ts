@@ -36,10 +36,6 @@ import {
   version as packageVersion,
   productName,
 } from '../ts/util/packageJson.node.js';
-import {
-  extractBuildDate,
-  extractCommitHash,
-} from '../ts/util/version.std.js';
 import * as GlobalErrors from './global_errors.main.js';
 import { setup as setupCrashReports } from './crashReports.main.js';
 import { setup as setupSpellChecker } from './spell_check.main.js';
@@ -114,7 +110,12 @@ import {
   installWebHandler,
 } from './protocol_filter.node.js';
 import OS from '../ts/util/os/osMain.node.js';
-import { isNightly, isProduction } from '../ts/util/version.std.js';
+import {
+  extractBuildDate,
+  extractCommitHash,
+  isNightly,
+  isProduction,
+} from '../ts/util/version.std.js';
 import { clearTimeoutIfNecessary } from '../ts/util/clearTimeoutIfNecessary.std.js';
 import { toggleMaximizedBrowserWindow } from '../ts/util/toggleMaximizedBrowserWindow.std.js';
 import { ChallengeMainHandler } from '../ts/main/challengeMain.main.js';
