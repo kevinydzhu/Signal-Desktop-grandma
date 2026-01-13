@@ -647,6 +647,10 @@ export function SmartPreferences(): JSX.Element | null {
     createItemsAccess('incoming-call-notification', true);
   const [hasCallRingtoneNotification, onCallRingtoneNotificationChange] =
     createItemsAccess('call-ringtone-notification', true);
+  const [hasAutoAnswerCalls, onAutoAnswerCallsChange] = createItemsAccess(
+    'auto-answer-calls',
+    false
+  );
   const [hasCountMutedConversations, onCountMutedConversationsChange] =
     createItemsAccess('badge-count-muted-conversations', false, () => {
       window.Whisper.events.emit('updateUnreadCount');
@@ -840,6 +844,7 @@ export function SmartPreferences(): JSX.Element | null {
           hasKeepMutedChatsArchived={hasKeepMutedChatsArchived}
           hasCallNotifications={hasCallNotifications}
           hasCallRingtoneNotification={hasCallRingtoneNotification}
+          hasAutoAnswerCalls={hasAutoAnswerCalls}
           hasContentProtection={hasContentProtection}
           hasCountMutedConversations={hasCountMutedConversations}
           hasFailedStorySends={hasFailedStorySends}
@@ -890,6 +895,7 @@ export function SmartPreferences(): JSX.Element | null {
           onBackupKeyViewedChange={onBackupKeyViewedChange}
           onCallNotificationsChange={onCallNotificationsChange}
           onCallRingtoneNotificationChange={onCallRingtoneNotificationChange}
+          onAutoAnswerCallsChange={onAutoAnswerCallsChange}
           onContentProtectionChange={onContentProtectionChange}
           onCountMutedConversationsChange={onCountMutedConversationsChange}
           onEmojiSkinToneDefaultChange={onEmojiSkinToneDefaultChange}

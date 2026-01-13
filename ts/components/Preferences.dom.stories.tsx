@@ -436,6 +436,7 @@ export default {
     hasAutoLaunch: true,
     hasCallNotifications: true,
     hasCallRingtoneNotification: false,
+    hasAutoAnswerCalls: false,
     hasContentProtection: false,
     hasCountMutedConversations: false,
     hasFailedStorySends: false,
@@ -561,6 +562,7 @@ export default {
     onCallRingtoneNotificationChange: action(
       'onCallRingtoneNotificationChange'
     ),
+    onAutoAnswerCallsChange: action('onAutoAnswerCallsChange'),
     onContentProtectionChange: action('onContentProtectionChange'),
     onCountMutedConversationsChange: action('onCountMutedConversationsChange'),
     onEmojiSkinToneDefaultChange: action('onEmojiSkinToneDefaultChange'),

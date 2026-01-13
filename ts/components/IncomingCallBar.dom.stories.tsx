@@ -147,3 +147,15 @@ export function IncomingGroupCallCallingYouAnd4Others(): JSX.Element {
     />
   );
 }
+
+export function IncomingDirectCallWithAutoAnswer(): JSX.Element {
+  return (
+    <IncomingCallBar
+      {...commonProps}
+      autoAnswerEnabled
+      conversation={directConversation}
+      callMode={CallMode.Direct}
+      isVideoCall
+    />
+  );
+}

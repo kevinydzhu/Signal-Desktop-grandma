@@ -531,6 +531,18 @@ $secondary-text-color: light-dark(
     padding-inline: 24px;
   }
 
+  &__custom-badge {
+    @include mixins.font-caption;
+    background-color: variables.$color-ultramarine;
+    color: variables.$color-white;
+    padding-block: 2px;
+    padding-inline: 6px;
+    border-radius: 10px;
+    margin-inline-start: 8px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
   &__option-name {
     @include mixins.font-body-1;
     @include mixins.light-theme {

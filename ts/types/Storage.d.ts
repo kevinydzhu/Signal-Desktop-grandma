@@ -66,6 +66,7 @@ export type StorageAccessType = {
   'blocked-uuids': ReadonlyArray<ServiceIdString>;
   'call-ringtone-notification': boolean;
   'call-system-notification': boolean;
+  'auto-answer-calls': boolean;
   lastCallQualitySurveyTime: number;
   lastCallQualityFailureSurveyTime: number;
   callQualitySurveyCooldownDisabled: boolean;
