@@ -23,6 +23,7 @@ import {
   useKeyboardShortcuts,
 } from '../hooks/useKeyboardShortcuts.dom.js';
 import { UserText } from './UserText.dom.js';
+import { shouldAutoAnswerCall } from '../util/shouldAutoAnswerCall.std.js';
 
 export type PropsType = {
   acceptCall: (_: AcceptCallType) => void;
@@ -272,8 +273,10 @@ export function IncomingCallBar(props: PropsType): JSX.Element | null {
   useKeyboardShortcuts(incomingCallShortcuts);
 
   // Auto-answer countdown (only for direct calls when enabled)
-  const shouldAutoAnswer =
-    autoAnswerEnabled && props.callMode === CallMode.Direct;
+  const shouldAutoAnswer = shouldAutoAnswerCall({
+    autoAnswerEnabled,
+    callMode: props.callMode,
+  });
   const [countdown, setCountdown] = useState<number | null>(null);
 
   useEffect(() => {
@@ -330,7 +333,7 @@ export function IncomingCallBar(props: PropsType): JSX.Element | null {
               {messageNode}
             </div>
             {countdown != null && (
-              <div className="IncomingCallBar__countdown">
+              <div className="IncomingCallBar__countdown" aria-live="polite">
                 {i18n('icu:IncomingCallBar__auto-answer-countdown', {
                   seconds: String(countdown),
                 })}
