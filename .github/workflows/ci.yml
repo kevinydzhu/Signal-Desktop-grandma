@@ -325,6 +325,32 @@ jobs:
         with:
           path: artifacts
 
+      - name: Upload Windows installer
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-installer
+          path: release/*.exe
+
+      - name: Get version from package.json
+        if: github.ref == 'refs/heads/main'
+        id: version
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}-${{ github.run_number }}
+          name: Build ${{ github.run_number }} (v${{ steps.version.outputs.VERSION }})
+          draft: false
+          prerelease: true
+          files: release/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   # sticker-creator:
   #   name: Sticker Creator
   #   runs-on: ubuntu-22.04
