@@ -39,7 +39,9 @@
       "Bash(file:*)",
       "Bash(du:*)",
       "WebSearch",
-      "Bash(pnpm run lint:*)"
+      "Bash(pnpm run lint:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.electron.build)"
     ]
   }
 }
