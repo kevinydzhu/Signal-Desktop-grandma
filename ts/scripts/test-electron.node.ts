@@ -70,46 +70,64 @@ async function launchElectron(
     process.exit(1);
   }
 
-  if (attempt !== 1) {
-    console.log(
-      `Launching electron ${worker} for tests, attempt #${attempt}...`
-    );
-  }
+  console.log(
+    `[Worker ${worker}] Launching electron for tests` +
+      (attempt !== 1 ? `, attempt #${attempt}` : '') +
+      ` (platform: ${process.platform}, shell: ${process.platform === 'win32'})`
+  );
 
   const storagePath = await mkdtemp(join(tmpdir(), 'signal-test-'));
+  console.log(`[Worker ${worker}] Storage path: ${storagePath}`);
 
-  const proc = spawn(
-    ELECTRON,
-    [
-      'ci.js',
-      '--worker',
-      worker.toString(),
-      '--worker-count',
-      WORKER_COUNT.toString(),
-      ...process.argv.slice(2),
-    ],
-    {
-      cwd: ROOT_DIR,
-      env: {
-        ...process.env,
-        // Setting NODE_ENV to test triggers main.ts to load
-        // 'test/index.html' instead of 'background.html', which loads the tests
-        // via `test.js`
-        NODE_ENV: 'test',
-        TEST_QUIT_ON_COMPLETE: 'on',
-        SIGNAL_CI_CONFIG: JSON.stringify({
-          storagePath,
-        }),
-      },
-      // Since we run `.cmd` file on Windows - use shell
-      shell: process.platform === 'win32',
+  const args = [
+    'ci.js',
+    '--worker',
+    worker.toString(),
+    '--worker-count',
+    WORKER_COUNT.toString(),
+    ...process.argv.slice(2),
+  ];
+  console.log(`[Worker ${worker}] Spawning: ${ELECTRON} ${args.join(' ')}`);
+
+  const proc = spawn(ELECTRON, args, {
+    cwd: ROOT_DIR,
+    env: {
+      ...process.env,
+      // Setting NODE_ENV to test triggers main.ts to load
+      // 'test/index.html' instead of 'background.html', which loads the tests
+      // via `test.js`
+      NODE_ENV: 'test',
+      TEST_QUIT_ON_COMPLETE: 'on',
+      SIGNAL_CI_CONFIG: JSON.stringify({
+        storagePath,
+      }),
+    },
+    // Since we run `.cmd` file on Windows - use shell
+    shell: process.platform === 'win32',
+  });
+
+  proc.on('spawn', () => {
+    console.log(`[Worker ${worker}] Electron process spawned (pid: ${proc.pid})`);
+  });
+
+  proc.on('error', err => {
+    console.error(`[Worker ${worker}] Electron process error:`, err);
+  });
+
+  proc.stderr?.on('data', (data: Buffer) => {
+    const text = data.toString().trim();
+    if (text) {
+      console.error(`[Worker ${worker}] stderr: ${text}`);
     }
-  );
+  });
 
   const { resolve, reject, promise: exitPromise } = explodePromise<void>();
 
   let exitSignal: string | undefined;
   proc.on('exit', (code, signal) => {
+    console.log(
+      `[Worker ${worker}] Electron process exited (code: ${code}, signal: ${signal})`
+    );
     if (code === 0) {
       resolve();
     } else {
@@ -121,6 +139,8 @@ async function launchElectron(
   let pass = 0;
   const failures = new Array<Failure>();
   let done = false;
+  let firstEventReceived = false;
+  let lineCount = 0;
 
   try {
     await Promise.all([
@@ -130,6 +150,11 @@ async function launchElectron(
         split2()
           .resume()
           .on('data', line => {
+            lineCount += 1;
+            if (lineCount <= 5) {
+              console.log(`[Worker ${worker}] stdout line ${lineCount}: ${line.slice(0, 200)}`);
+            }
+
             if (!line) {
               return;
             }
@@ -145,6 +170,11 @@ async function launchElectron(
                 }
               }
               return;
+            }
+
+            if (!firstEventReceived) {
+              firstEventReceived = true;
+              console.log(`[Worker ${worker}] First test event received`);
             }
 
             const event = parseUnknown(
@@ -170,6 +200,7 @@ async function launchElectron(
               console.error('');
               console.error(event.error);
             } else if (event.type === 'end') {
+              console.log(`[Worker ${worker}] Received 'end' event`);
               done = true;
             } else {
               throw missingCaseError(event);
@@ -210,6 +241,15 @@ async function launchElectron(
 }
 
 async function main() {
+  console.log('='.repeat(60));
+  console.log('Starting test-electron');
+  console.log(`  Platform: ${process.platform}`);
+  console.log(`  Worker count: ${WORKER_COUNT}`);
+  console.log(`  Electron path: ${ELECTRON}`);
+  console.log(`  Root dir: ${ROOT_DIR}`);
+  console.log(`  CI: ${process.env.CI ?? 'false'}`);
+  console.log('='.repeat(60));
+
   const promises = [];
   for (let i = 0; i < WORKER_COUNT; i += 1) {
     promises.push(launchElectron(i, 1));

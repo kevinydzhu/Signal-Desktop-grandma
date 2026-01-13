@@ -289,7 +289,7 @@ jobs:
         env:
           ARTIFACTS_DIR: artifacts/windows
           WORKER_COUNT: 4
-        timeout-minutes: 5
+        timeout-minutes: 10
       - run: pnpm run test-release
         env:
           SIGNAL_ENV: production

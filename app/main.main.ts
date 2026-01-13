@@ -3370,17 +3370,9 @@ if (isTestEnvironment(getEnvironment())) {
   });
 
   ipc.handle('ci:test-electron:event', async (_event, event) => {
-    process.stdout.write(
-      `ci:test-electron:event=${JSON.stringify(event)}\n`,
-      () => {
-        if (event.type !== 'end') {
-          return;
-        }
-        if (!process.env.TEST_QUIT_ON_COMPLETE) {
-          return;
-        }
-        app.quit();
-      }
-    );
+    process.stdout.write(`ci:test-electron:event=${JSON.stringify(event)}\n`);
+    if (event.type === 'end' && process.env.TEST_QUIT_ON_COMPLETE) {
+      app.quit();
+    }
   });
 }
