@@ -43,7 +43,9 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:www.electron.build)",
       "Bash(npm info:*)",
-      "Bash(pnpm run check:types:*)"
+      "Bash(pnpm run check:types:*)",
+      "Bash(pnpm run test-node:*)",
+      "Bash(npx eslint:*)"
     ]
   }
 }

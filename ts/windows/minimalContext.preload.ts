@@ -44,6 +44,8 @@ export const MinimalSignalContext: MinimalSignalContextType = {
     return String(config[`${name}Path`]);
   },
   getVersion: (): string => String(config.version),
+  getBuildDate: (): string | undefined => config.buildDate,
+  getBuildCommitHash: (): string | undefined => config.buildCommitHash,
   async getMainWindowStats(): Promise<MainWindowStatsType> {
     return ipcRenderer.invoke('getMainWindowStats');
   },

@@ -13,6 +13,8 @@ export type AboutProps = Readonly<{
   platform: string;
   i18n: LocalizerType;
   version: string;
+  buildDate?: string;
+  buildCommitHash?: string;
 }>;
 
 export function About({
@@ -22,6 +24,8 @@ export function About({
   platform,
   i18n,
   version,
+  buildDate,
+  buildCommitHash,
 }: AboutProps): JSX.Element {
   useEscapeHandling(closeAbout);
 
@@ -37,13 +41,18 @@ export function About({
     env = i18n('icu:About__AppEnvironment', { appEnv });
   }
 
+  const displayVersion =
+    buildDate && buildCommitHash
+      ? `${version} [${buildDate} ${buildCommitHash}]`
+      : version;
+
   return (
     <div className="About">
       <div className="module-splash-screen">
         <div className="module-splash-screen__logo module-splash-screen__logo--128" />
 
         <h1 className="About__Title">{i18n('icu:signalDesktop')}</h1>
-        <div className="version">{version}</div>
+        <div className="version">{displayVersion}</div>
         <div className="environment">{env}</div>
         <br />
         <div>

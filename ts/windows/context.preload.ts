@@ -52,6 +52,8 @@ export type MinimalSignalContextType = {
   getNodeVersion: () => string;
   getPath: (name: 'userData' | 'home' | 'install') => string;
   getVersion: () => string;
+  getBuildDate: () => string | undefined;
+  getBuildCommitHash: () => string | undefined;
   isTestOrMockEnvironment: () => boolean;
   nativeThemeListener: NativeThemeType;
   restartApp: () => void;

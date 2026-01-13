@@ -110,7 +110,12 @@ import {
   installWebHandler,
 } from './protocol_filter.node.js';
 import OS from '../ts/util/os/osMain.node.js';
-import { isNightly, isProduction } from '../ts/util/version.std.js';
+import {
+  extractBuildDate,
+  extractCommitHash,
+  isNightly,
+  isProduction,
+} from '../ts/util/version.std.js';
 import { clearTimeoutIfNecessary } from '../ts/util/clearTimeoutIfNecessary.std.js';
 import { toggleMaximizedBrowserWindow } from '../ts/util/toggleMaximizedBrowserWindow.std.js';
 import { ChallengeMainHandler } from '../ts/main/challengeMain.main.js';
@@ -2799,6 +2804,8 @@ ipc.on('get-config', async event => {
     preferredSystemLocales: getPreferredSystemLocales(),
     localeOverride: getLocaleOverride(),
     version: app.getVersion(),
+    buildDate: extractBuildDate(app.getVersion()),
+    buildCommitHash: extractCommitHash(app.getVersion()),
     buildCreation: config.get<number>('buildCreation'),
     buildExpiration: config.get<number>('buildExpiration'),
     challengeUrl: config.get<string>('challengeUrl'),
