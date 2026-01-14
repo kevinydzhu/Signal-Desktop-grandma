@@ -1541,7 +1541,7 @@ function groupCallEnded(
     const callInstanceId =
       state.calling.activeCallState?.state === 'Active' &&
       state.calling.activeCallState?.conversationId === payload.conversationId
-        ? state.calling.activeCallState.joinedAt ?? undefined
+        ? (state.calling.activeCallState.joinedAt ?? undefined)
         : undefined;
 
     if (endedReason === CallEndReason.DeniedRequestToJoinCall) {
