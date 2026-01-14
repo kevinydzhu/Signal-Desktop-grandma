@@ -8,7 +8,7 @@ const log = createLogger('callAutomation');
 
 let lastAutomatedCallId: string | null = null;
 
-export async function runPreCallAutomation(): Promise<void> {
+async function runPreCallAutomationImpl(): Promise<void> {
   const scriptPath = itemStorage.get('call-automation-pre-script-path');
   const shouldMaximize = itemStorage.get(
     'call-automation-maximize-on-call',
@@ -35,7 +35,7 @@ export async function runPreCallAutomation(): Promise<void> {
   }
 }
 
-export async function runPostCallAutomation(
+async function runPostCallAutomationImpl(
   conversationId?: string
 ): Promise<void> {
   if (conversationId && conversationId === lastAutomatedCallId) {
@@ -70,4 +70,19 @@ export async function runPostCallAutomation(
       log.error('Post-call script error:', error);
     }
   }
+}
+
+// Exported object that can be stubbed in tests
+export const callAutomationImpl = {
+  runPreCallAutomation: runPreCallAutomationImpl,
+  runPostCallAutomation: runPostCallAutomationImpl,
+};
+
+// Public API - delegates to callAutomationImpl so tests can stub it
+export function runPreCallAutomation(): Promise<void> {
+  return callAutomationImpl.runPreCallAutomation();
+}
+
+export function runPostCallAutomation(conversationId?: string): Promise<void> {
+  return callAutomationImpl.runPostCallAutomation(conversationId);
 }
