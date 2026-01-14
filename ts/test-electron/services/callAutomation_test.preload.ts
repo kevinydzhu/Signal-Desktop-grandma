@@ -19,8 +19,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
     sandbox = sinon.createSandbox();
 
     mockIPC = {
-      callAutomationMaximizeWindow: sandbox.stub(),
-      callAutomationMinimizeToTray: sandbox.stub(),
+      callAutomationMaximizeWindow: sandbox.stub().resolves(),
+      callAutomationMinimizeToTray: sandbox.stub().resolves(),
       callAutomationRunScript: sandbox.stub().resolves({ success: true }),
     };
 
@@ -181,6 +181,130 @@ describe('callAutomation', function (this: Mocha.Suite) {
 
       sinon.assert.calledOnce(mockIPC.callAutomationRunScript);
       sinon.assert.calledOnce(mockIPC.callAutomationMaximizeWindow);
+    });
+
+    it('waits for maximize to complete before returning', async () => {
+      let maximizeResolved = false;
+      let maximizeResolve: (() => void) | undefined;
+      const maximizePromise = new Promise<void>(resolve => {
+        maximizeResolve = () => {
+          maximizeResolved = true;
+          resolve();
+        };
+      });
+      mockIPC.callAutomationMaximizeWindow.returns(maximizePromise);
+
+      sandbox.stub(itemStorage, 'get').callsFake(key => {
+        if (key === 'call-automation-pre-script-path') {
+          return undefined;
+        }
+        if (key === 'call-automation-maximize-on-call') {
+          return true;
+        }
+        return undefined;
+      });
+
+      const { runPreCallAutomation } = await import(
+        '../../services/callAutomation.preload.js'
+      );
+
+      const automationPromise = runPreCallAutomation();
+
+      // Verify maximize was called but automation hasn't completed yet
+      sinon.assert.calledOnce(mockIPC.callAutomationMaximizeWindow);
+
+      // Give microtask queue a chance to run
+      await Promise.resolve();
+
+      // Create a flag to track if automation completed
+      let automationCompleted = false;
+      const trackCompletion = async () => {
+        await automationPromise;
+        automationCompleted = true;
+      };
+      const completionPromise = trackCompletion();
+
+      // Verify automation is still waiting
+      await Promise.resolve();
+      if (automationCompleted && !maximizeResolved) {
+        throw new Error(
+          'runPreCallAutomation should wait for maximize to complete'
+        );
+      }
+
+      // Now resolve maximize
+      if (maximizeResolve) {
+        maximizeResolve();
+      }
+
+      // Wait for automation to complete
+      await completionPromise;
+    });
+
+    it('waits for script to complete before maximize', async () => {
+      const scriptPath = '/path/to/script.sh';
+      const callOrder: Array<string> = [];
+
+      let scriptResolve: (() => void) | undefined;
+      const scriptPromise = new Promise<{ success: boolean }>(resolve => {
+        scriptResolve = () => {
+          callOrder.push('script-resolved');
+          resolve({ success: true });
+        };
+      });
+
+      mockIPC.callAutomationRunScript.callsFake(() => {
+        callOrder.push('script-called');
+        return scriptPromise;
+      });
+
+      mockIPC.callAutomationMaximizeWindow.callsFake(() => {
+        callOrder.push('maximize-called');
+        return Promise.resolve();
+      });
+
+      sandbox.stub(itemStorage, 'get').callsFake(key => {
+        if (key === 'call-automation-pre-script-path') {
+          return scriptPath;
+        }
+        if (key === 'call-automation-maximize-on-call') {
+          return true;
+        }
+        return undefined;
+      });
+
+      const { runPreCallAutomation } = await import(
+        '../../services/callAutomation.preload.js'
+      );
+
+      const automationPromise = runPreCallAutomation();
+
+      // Give microtask queue a chance to run
+      await Promise.resolve();
+      await Promise.resolve();
+
+      // Script should be called but maximize should not yet
+      if (!callOrder.includes('script-called')) {
+        throw new Error('Script should have been called');
+      }
+      if (callOrder.includes('maximize-called')) {
+        throw new Error('Maximize should not be called before script resolves');
+      }
+
+      // Resolve script
+      if (scriptResolve) {
+        scriptResolve();
+      }
+
+      // Wait for automation to complete
+      await automationPromise;
+
+      // Verify order: script-called, script-resolved, maximize-called
+      const scriptResolvedIdx = callOrder.indexOf('script-resolved');
+      const maximizeCalledIdx = callOrder.indexOf('maximize-called');
+      if (scriptResolvedIdx > maximizeCalledIdx) {
+        throw new Error('Script should resolve before maximize is called');
+      }
     });
   });
 
@@ -398,6 +522,72 @@ describe('callAutomation', function (this: Mocha.Suite) {
       // Should run again even without conversationId (no dedup without ID)
       await runPostCallAutomation();
       sinon.assert.calledTwice(mockIPC.callAutomationMinimizeToTray);
+    });
+
+    it('waits for minimize to complete before running script', async () => {
+      const scriptPath = '/path/to/post-script.sh';
+      const callOrder: Array<string> = [];
+
+      let minimizeResolve: (() => void) | undefined;
+      const minimizePromise = new Promise<void>(resolve => {
+        minimizeResolve = () => {
+          callOrder.push('minimize-resolved');
+          resolve();
+        };
+      });
+
+      mockIPC.callAutomationMinimizeToTray.callsFake(() => {
+        callOrder.push('minimize-called');
+        return minimizePromise;
+      });
+
+      mockIPC.callAutomationRunScript.callsFake(() => {
+        callOrder.push('script-called');
+        return Promise.resolve({ success: true });
+      });
+
+      sandbox.stub(itemStorage, 'get').callsFake(key => {
+        if (key === 'call-automation-minimize-after-call') {
+          return true;
+        }
+        if (key === 'call-automation-post-script-path') {
+          return scriptPath;
+        }
+        return undefined;
+      });
+
+      const { runPostCallAutomation } = await import(
+        '../../services/callAutomation.preload.js'
+      );
+
+      const automationPromise = runPostCallAutomation('test-conv');
+
+      // Give microtask queue a chance to run
+      await Promise.resolve();
+      await Promise.resolve();
+
+      // Minimize should be called but script should not yet
+      if (!callOrder.includes('minimize-called')) {
+        throw new Error('Minimize should have been called');
+      }
+      if (callOrder.includes('script-called')) {
+        throw new Error('Script should not be called before minimize resolves');
+      }
+
+      // Resolve minimize
+      if (minimizeResolve) {
+        minimizeResolve();
+      }
+
+      // Wait for automation to complete
+      await automationPromise;
+
+      // Verify order: minimize-called, minimize-resolved, script-called
+      const minimizeResolvedIdx = callOrder.indexOf('minimize-resolved');
+      const scriptCalledIdx = callOrder.indexOf('script-called');
+      if (minimizeResolvedIdx > scriptCalledIdx) {
+        throw new Error('Minimize should resolve before script is called');
+      }
     });
   });
 });

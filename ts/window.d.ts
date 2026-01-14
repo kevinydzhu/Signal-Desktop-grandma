@@ -67,8 +67,8 @@ export type IPCType = {
   stopTrackingQueryStats: (options?: QueryStatsOptions) => void;
   titleBarDoubleClick: () => void;
   updateTrayIcon: (count: number) => void;
-  callAutomationMaximizeWindow: () => void;
-  callAutomationMinimizeToTray: () => void;
+  callAutomationMaximizeWindow: () => Promise<void>;
+  callAutomationMinimizeToTray: () => Promise<void>;
   callAutomationRunScript: (
     scriptPath: string
   ) => Promise<{ success: boolean; error?: string }>;
