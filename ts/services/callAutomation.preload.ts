@@ -6,7 +6,22 @@ import { itemStorage } from '../textsecure/Storage.preload.js';
 
 const log = createLogger('callAutomation');
 
-let lastAutomatedCallId: string | null = null;
+let lastAutomatedCallKey: string | null = null;
+
+function getAutomationKey(
+  conversationId?: string,
+  callInstanceId?: number | null
+): string | undefined {
+  if (!conversationId) {
+    return undefined;
+  }
+
+  if (callInstanceId != null) {
+    return `${conversationId}:${callInstanceId}`;
+  }
+
+  return undefined;
+}
 
 async function runPreCallAutomationImpl(): Promise<void> {
   const scriptPath = itemStorage.get('call-automation-pre-script-path');
@@ -36,14 +51,16 @@ async function runPreCallAutomationImpl(): Promise<void> {
 }
 
 async function runPostCallAutomationImpl(
-  conversationId?: string
+  conversationId?: string,
+  callInstanceId?: number | null
 ): Promise<void> {
-  if (conversationId && conversationId === lastAutomatedCallId) {
+  const automationKey = getAutomationKey(conversationId, callInstanceId);
+  if (automationKey && automationKey === lastAutomatedCallKey) {
     log.info('Post-call automation already ran for this call, skipping');
     return;
   }
-  if (conversationId) {
-    lastAutomatedCallId = conversationId;
+  if (automationKey) {
+    lastAutomatedCallKey = automationKey;
   }
 
   const shouldMinimize = itemStorage.get(
@@ -83,6 +100,12 @@ export function runPreCallAutomation(): Promise<void> {
   return callAutomationImpl.runPreCallAutomation();
 }
 
-export function runPostCallAutomation(conversationId?: string): Promise<void> {
-  return callAutomationImpl.runPostCallAutomation(conversationId);
+export function runPostCallAutomation(
+  conversationId?: string,
+  callInstanceId?: number | null
+): Promise<void> {
+  return callAutomationImpl.runPostCallAutomation(
+    conversationId,
+    callInstanceId
+  );
 }

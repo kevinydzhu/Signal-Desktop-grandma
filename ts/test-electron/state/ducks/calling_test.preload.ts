@@ -2026,7 +2026,8 @@ describe('calling duck', () => {
         sinon.assert.calledWith(
           callAutomationModule.callAutomationImpl
             .runPostCallAutomation as sinon.SinonStub,
-          'test-conversation-id'
+          'test-conversation-id',
+          12345
         );
       });
 
