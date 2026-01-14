@@ -67,6 +67,10 @@ export type StorageAccessType = {
   'call-ringtone-notification': boolean;
   'call-system-notification': boolean;
   'auto-answer-calls': boolean;
+  'call-automation-pre-script-path': string | undefined;
+  'call-automation-maximize-on-call': boolean;
+  'call-automation-minimize-after-call': boolean;
+  'call-automation-post-script-path': string | undefined;
   lastCallQualitySurveyTime: number;
   lastCallQualityFailureSurveyTime: number;
   callQualitySurveyCooldownDisabled: boolean;

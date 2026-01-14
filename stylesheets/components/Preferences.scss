@@ -576,6 +576,53 @@ $secondary-text-color: light-dark(
     width: 100%;
   }
 
+  &__input-with-browse {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+
+    input {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &__browse-button {
+    @include mixins.button-reset;
+    & {
+      flex-shrink: 0;
+      padding-block: 8px;
+      padding-inline: 16px;
+      border-radius: 8px;
+      @include mixins.font-body-2;
+      font-weight: 500;
+    }
+
+    @include mixins.light-theme {
+      background: variables.$color-gray-05;
+      color: variables.$color-gray-90;
+    }
+    @include mixins.dark-theme {
+      background: variables.$color-gray-65;
+      color: variables.$color-gray-05;
+    }
+
+    &:hover {
+      @include mixins.light-theme {
+        background: variables.$color-gray-15;
+      }
+      @include mixins.dark-theme {
+        background: variables.$color-gray-60;
+      }
+    }
+
+    &:focus {
+      @include mixins.keyboard-mode {
+        box-shadow: 0 0 0 2px variables.$color-ultramarine;
+      }
+    }
+  }
+
   &__select-title {
     display: block;
     margin-bottom: 8px;
