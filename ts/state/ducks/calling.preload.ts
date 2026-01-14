@@ -1853,9 +1853,6 @@ function receiveIncomingDirectCall(
   IncomingDirectCallActionType
 > {
   return async (dispatch, getState) => {
-    // Run pre-call automation and wait for completion before showing UI
-    await runPreCallAutomation();
-
     const callState = getState().calling;
 
     if (
@@ -1865,10 +1862,14 @@ function receiveIncomingDirectCall(
       calling.stopCallingLobby();
     }
 
+    // Dispatch action FIRST so call exists in Redux for state change events
     dispatch({
       type: INCOMING_DIRECT_CALL,
       payload,
     });
+
+    // Then run pre-call automation (can take several seconds)
+    await runPreCallAutomation();
   };
 }
 
@@ -1881,13 +1882,14 @@ function receiveIncomingGroupCall(
   IncomingGroupCallActionType
 > {
   return async dispatch => {
-    // Run pre-call automation and wait for completion before showing UI
-    await runPreCallAutomation();
-
+    // Dispatch action FIRST so call exists in Redux for state change events
     dispatch({
       type: INCOMING_GROUP_CALL,
       payload,
     });
+
+    // Then run pre-call automation (can take several seconds)
+    await runPreCallAutomation();
   };
 }
 
