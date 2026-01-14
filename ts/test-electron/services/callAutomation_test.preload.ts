@@ -274,7 +274,7 @@ describe('callAutomation', function (this: Mocha.Suite) {
       );
     });
 
-    it('skips automation if called with same conversationId', async () => {
+    it('skips automation if called with same conversationId and call instance', async () => {
       const scriptPath = '/path/to/post-script.sh';
       sandbox.stub(itemStorage, 'get').callsFake(key => {
         if (key === 'call-automation-minimize-after-call') {
@@ -291,14 +291,37 @@ describe('callAutomation', function (this: Mocha.Suite) {
       );
 
       // First call should run
-      await runPostCallAutomation('conversation-dedup');
+      await runPostCallAutomation('conversation-dedup', 123);
       sinon.assert.calledOnce(mockIPC.callAutomationMinimizeToTray);
       sinon.assert.calledOnce(mockIPC.callAutomationRunScript);
 
-      // Second call with same ID should be skipped
-      await runPostCallAutomation('conversation-dedup');
+      // Second call with same call instance should be skipped
+      await runPostCallAutomation('conversation-dedup', 123);
       sinon.assert.calledOnce(mockIPC.callAutomationMinimizeToTray);
       sinon.assert.calledOnce(mockIPC.callAutomationRunScript);
+    });
+
+    it('runs automation again for the same conversation when call instance changes', async () => {
+      const scriptPath = '/path/to/post-script.sh';
+      sandbox.stub(itemStorage, 'get').callsFake(key => {
+        if (key === 'call-automation-minimize-after-call') {
+          return true;
+        }
+        if (key === 'call-automation-post-script-path') {
+          return scriptPath;
+        }
+        return undefined;
+      });
+
+      const { runPostCallAutomation } = await import(
+        '../../services/callAutomation.preload.js'
+      );
+
+      await runPostCallAutomation('conversation-dedup', 1);
+      await runPostCallAutomation('conversation-dedup', 2);
+
+      sinon.assert.calledTwice(mockIPC.callAutomationMinimizeToTray);
+      sinon.assert.calledTwice(mockIPC.callAutomationRunScript);
     });
 
     it('runs automation for different conversationIds', async () => {

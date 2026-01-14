@@ -1331,7 +1331,12 @@ function callStateChange(
 
     // Run post-call automation when call ends
     if (isEnded && wasAccepted) {
-      drop(runPostCallAutomation(payload.conversationId));
+      drop(
+        runPostCallAutomation(
+          payload.conversationId,
+          payload.acceptedTime ?? undefined
+        )
+      );
     }
 
     dispatch({
@@ -1531,9 +1536,16 @@ function groupCallEnded(
   GroupCallEndedActionType | ShowErrorModalActionType
 > {
   return (dispatch, getState) => {
+    const state = getState();
     const { endedReason } = payload;
+    const callInstanceId =
+      state.calling.activeCallState?.state === 'Active' &&
+      state.calling.activeCallState?.conversationId === payload.conversationId
+        ? state.calling.activeCallState.joinedAt ?? undefined
+        : undefined;
+
     if (endedReason === CallEndReason.DeniedRequestToJoinCall) {
-      const i18n = getIntl(getState());
+      const i18n = getIntl(state);
       dispatch({
         type: SHOW_ERROR_MODAL,
         payload: {
@@ -1545,9 +1557,9 @@ function groupCallEnded(
       return;
     }
     if (endedReason === CallEndReason.RemovedFromCall) {
-      const i18n = getIntl(getState());
+      const i18n = getIntl(state);
       // Run post-call automation since user was in the call
-      drop(runPostCallAutomation(payload.conversationId));
+      drop(runPostCallAutomation(payload.conversationId, callInstanceId));
       dispatch({
         type: SHOW_ERROR_MODAL,
         payload: {
@@ -1559,7 +1571,7 @@ function groupCallEnded(
       return;
     }
     if (endedReason === CallEndReason.HasMaxDevices) {
-      const i18n = getIntl(getState());
+      const i18n = getIntl(state);
       dispatch({
         type: SHOW_ERROR_MODAL,
         payload: {
@@ -1572,7 +1584,7 @@ function groupCallEnded(
     }
 
     // Run post-call automation for normal group call end
-    drop(runPostCallAutomation(payload.conversationId));
+    drop(runPostCallAutomation(payload.conversationId, callInstanceId));
 
     dispatch({ type: GROUP_CALL_ENDED, payload });
   };
