@@ -163,7 +163,7 @@ const IPC: IPCType = {
   updateTrayIcon: unreadCount => ipc.send('update-tray-icon', unreadCount),
   whenWindowVisible,
   callAutomationMaximizeWindow: () =>
-    ipc.send('call-automation:maximize-window'),
+    ipc.invoke('call-automation:maximize-window'),
   callAutomationMinimizeToTray: () =>
     ipc.send('call-automation:minimize-to-tray'),
   callAutomationRunScript: (scriptPath: string) =>

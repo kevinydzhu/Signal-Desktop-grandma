@@ -1107,7 +1107,7 @@ ipc.on('show-window', () => {
 });
 
 // Call automation IPC handlers
-ipc.on('call-automation:maximize-window', () => {
+ipc.handle('call-automation:maximize-window', () => {
   if (mainWindow) {
     showWindow();
     if (!mainWindow.isMaximized()) {
