@@ -54,6 +54,8 @@ import { callLinkRefreshJobQueue } from '../../../jobs/callLinkRefreshJobQueue.p
 import { CALL_LINK_DEFAULT_STATE } from '../../../util/callLinks.std.js';
 import { DataWriter } from '../../../sql/Client.preload.js';
 import * as callAutomationModule from '../../../services/callAutomation.preload.js';
+import { setupI18n } from '../../../util/setupI18n.dom.js';
+import enMessages from '../../../../_locales/en/messages.json';
 
 const { cloneDeep, noop } = lodash;
 
@@ -212,6 +214,8 @@ describe('calling duck', () => {
 
   const ourAci = generateAci();
 
+  const i18n = setupI18n('en', enMessages);
+
   const getEmptyRootState = (): StateType => {
     const rootState = rootReducer(undefined, noopAction());
     return {
@@ -219,6 +223,7 @@ describe('calling duck', () => {
       user: {
         ...rootState.user,
         ourAci,
+        i18n,
       },
     };
   };
