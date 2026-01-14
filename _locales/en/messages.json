@@ -3000,6 +3000,38 @@
     "messageformat": "Automatically answer incoming calls after a brief countdown",
     "description": "Description for the auto-answer calls setting"
   },
+  "icu:Preferences__call-automation-section": {
+    "messageformat": "Call Automation",
+    "description": "Section header for call automation settings"
+  },
+  "icu:Preferences__call-automation-pre-script": {
+    "messageformat": "Pre-call script path",
+    "description": "Label for pre-call automation script path input"
+  },
+  "icu:Preferences__call-automation-pre-script--description": {
+    "messageformat": "Script to run when a call comes in (.ps1 on Windows, .sh on macOS/Linux)",
+    "description": "Description for pre-call script setting"
+  },
+  "icu:Preferences__call-automation-maximize-on-call": {
+    "messageformat": "Maximize window when call comes in",
+    "description": "Label for maximize window on call setting"
+  },
+  "icu:Preferences__call-automation-minimize-after-call": {
+    "messageformat": "Minimize to system tray after call ends",
+    "description": "Label for minimize to tray after call setting"
+  },
+  "icu:Preferences__call-automation-post-script": {
+    "messageformat": "Post-call script path",
+    "description": "Label for post-call automation script path input"
+  },
+  "icu:Preferences__call-automation-post-script--description": {
+    "messageformat": "Script to run after a call ends (.ps1 on Windows, .sh on macOS/Linux)",
+    "description": "Description for post-call script setting"
+  },
+  "icu:Preferences__browse": {
+    "messageformat": "Browse...",
+    "description": "Label for browse button to select a file"
+  },
   "icu:Preferences__custom-badge": {
     "messageformat": "Custom",
     "description": "Badge label indicating a custom/non-standard feature"

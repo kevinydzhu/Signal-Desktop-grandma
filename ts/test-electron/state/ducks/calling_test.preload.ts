@@ -33,11 +33,13 @@ import { isAnybodyElseInGroupCall } from '../../../state/ducks/callingHelpers.st
 import { truncateAudioLevel } from '../../../calling/truncateAudioLevel.std.js';
 import { calling as callingService } from '../../../services/calling.preload.js';
 import {
+  CallEndedReason,
   CallState,
   CallViewMode,
   GroupCallConnectionState,
   GroupCallJoinState,
 } from '../../../types/Calling.std.js';
+import { CallEndReason } from '@signalapp/ringrtc';
 import { CallMode } from '../../../types/CallDisposition.std.js';
 import { generateAci } from '../../../types/ServiceId.std.js';
 import { getDefaultConversation } from '../../../test-helpers/getDefaultConversation.std.js';
@@ -51,6 +53,7 @@ import { strictAssert } from '../../../util/assert.std.js';
 import { callLinkRefreshJobQueue } from '../../../jobs/callLinkRefreshJobQueue.preload.js';
 import { CALL_LINK_DEFAULT_STATE } from '../../../util/callLinks.std.js';
 import { DataWriter } from '../../../sql/Client.preload.js';
+import * as callAutomationModule from '../../../services/callAutomation.preload.js';
 
 const { cloneDeep, noop } = lodash;
 
@@ -1769,8 +1772,30 @@ describe('calling duck', () => {
     describe('receiveIncomingGroupCall', () => {
       const { receiveIncomingGroupCall } = actions;
 
+      beforeEach(function (this: Mocha.Context) {
+        this.sandbox
+          .stub(callAutomationModule, 'runPreCallAutomation')
+          .resolves();
+      });
+
+      function getDispatchedAction(
+        payload: Parameters<typeof receiveIncomingGroupCall>[0]
+      ): Parameters<typeof reducer>[1] {
+        let dispatchedAction: Parameters<typeof reducer>[1] | undefined;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dispatch: any = (action: Parameters<typeof reducer>[1]) => {
+          dispatchedAction = action;
+        };
+        const getState = () => getEmptyRootState();
+        receiveIncomingGroupCall(payload)(dispatch, getState, undefined);
+        if (!dispatchedAction) {
+          throw new Error('No action was dispatched');
+        }
+        return dispatchedAction;
+      }
+
       it('does nothing if the call was already ringing', () => {
-        const action = receiveIncomingGroupCall({
+        const action = getDispatchedAction({
           conversationId: 'fake-group-call-conversation-id',
           ringId: BigInt(456),
           ringerAci,
@@ -1793,7 +1818,7 @@ describe('calling duck', () => {
             },
           },
         };
-        const action = receiveIncomingGroupCall({
+        const action = getDispatchedAction({
           conversationId: 'fake-group-call-conversation-id',
           ringId: BigInt(456),
           ringerAci,
@@ -1804,7 +1829,7 @@ describe('calling duck', () => {
       });
 
       it('creates a new group call if one did not exist', () => {
-        const action = receiveIncomingGroupCall({
+        const action = getDispatchedAction({
           conversationId: 'fake-group-call-conversation-id',
           ringId: BigInt(456),
           ringerAci,
@@ -1833,7 +1858,7 @@ describe('calling duck', () => {
       });
 
       it('attaches ring state to an existing call', () => {
-        const action = receiveIncomingGroupCall({
+        const action = getDispatchedAction({
           conversationId: 'fake-group-call-conversation-id',
           ringId: BigInt(456),
           ringerAci,
@@ -1846,6 +1871,231 @@ describe('calling duck', () => {
             ringId: BigInt(456),
             ringerAci,
           }
+        );
+      });
+
+      it('calls runPreCallAutomation when receiving an incoming group call', function (this: Mocha.Context) {
+        getDispatchedAction({
+          conversationId: 'fake-group-call-conversation-id',
+          ringId: BigInt(456),
+          ringerAci,
+        });
+
+        sinon.assert.calledOnce(
+          callAutomationModule.runPreCallAutomation as sinon.SinonStub
+        );
+      });
+    });
+
+    describe('receiveIncomingDirectCall', () => {
+      const { receiveIncomingDirectCall } = actions;
+
+      beforeEach(function (this: Mocha.Context) {
+        this.sandbox
+          .stub(callAutomationModule, 'runPreCallAutomation')
+          .resolves();
+      });
+
+      function dispatchAndGetAction(
+        payload: Parameters<typeof receiveIncomingDirectCall>[0],
+        initialState: RootStateType = getEmptyRootState()
+      ): Parameters<typeof reducer>[1] {
+        let dispatchedAction: Parameters<typeof reducer>[1] | undefined;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dispatch: any = (action: Parameters<typeof reducer>[1]) => {
+          dispatchedAction = action;
+        };
+        receiveIncomingDirectCall(payload)(
+          dispatch,
+          () => initialState,
+          undefined
+        );
+        if (!dispatchedAction) {
+          throw new Error('No action was dispatched');
+        }
+        return dispatchedAction;
+      }
+
+      it('calls runPreCallAutomation when receiving an incoming direct call', function (this: Mocha.Context) {
+        dispatchAndGetAction({
+          conversationId: 'test-conversation-id',
+          isVideoCall: false,
+        });
+
+        sinon.assert.calledOnce(
+          callAutomationModule.runPreCallAutomation as sinon.SinonStub
+        );
+      });
+
+      it('creates a new direct call entry', () => {
+        const action = dispatchAndGetAction({
+          conversationId: 'test-conversation-id',
+          isVideoCall: true,
+        });
+
+        const result = reducer(getEmptyState(), action);
+
+        assert.deepEqual(result.callsByConversation['test-conversation-id'], {
+          callMode: CallMode.Direct,
+          conversationId: 'test-conversation-id',
+          callState: CallState.Prering,
+          isIncoming: true,
+          isVideoCall: true,
+          remoteAudioLevel: 0,
+        });
+      });
+
+      it('stops calling lobby if there is an active call for the same conversation', function (this: Mocha.Context) {
+        const stopCallingLobby = this.sandbox.stub(callingService, 'stopCallingLobby');
+
+        const stateWithActiveLobby: RootStateType = {
+          ...getEmptyRootState(),
+          calling: {
+            ...getEmptyState(),
+            activeCallState: {
+              state: 'Active',
+              callMode: CallMode.Direct,
+              conversationId: 'test-conversation-id',
+              hasLocalAudio: true,
+              hasLocalVideo: false,
+              localAudioLevel: 0,
+              viewMode: CallViewMode.Paginated,
+              showParticipantsList: false,
+              outgoingRing: true,
+              pip: false,
+              selfViewExpanded: false,
+              settingsDialogOpen: false,
+              joinedAt: null,
+            },
+          },
+        };
+
+        dispatchAndGetAction(
+          {
+            conversationId: 'test-conversation-id',
+            isVideoCall: false,
+          },
+          stateWithActiveLobby
+        );
+
+        sinon.assert.calledOnce(stopCallingLobby);
+      });
+    });
+
+    describe('callStateChange', () => {
+      const { callStateChange } = actions;
+
+      beforeEach(function (this: Mocha.Context) {
+        this.sandbox
+          .stub(callAutomationModule, 'runPostCallAutomation')
+          .resolves();
+      });
+
+      it('calls runPostCallAutomation when call ends and was accepted', async function (this: Mocha.Context) {
+        const dispatch = sinon.spy();
+        await callStateChange({
+          conversationId: 'test-conversation-id',
+          callState: CallState.Ended,
+          callEndedReason: CallEndedReason.LocalHangup,
+          acceptedTime: 12345,
+        })(dispatch, () => getEmptyRootState(), undefined);
+
+        sinon.assert.calledOnce(
+          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+        );
+        sinon.assert.calledWith(
+          callAutomationModule.runPostCallAutomation as sinon.SinonStub,
+          'test-conversation-id'
+        );
+      });
+
+      it('does not call runPostCallAutomation when call ends but was not accepted', async function (this: Mocha.Context) {
+        const dispatch = sinon.spy();
+        await callStateChange({
+          conversationId: 'test-conversation-id',
+          callState: CallState.Ended,
+          callEndedReason: CallEndedReason.LocalHangup,
+          acceptedTime: null,
+        })(dispatch, () => getEmptyRootState(), undefined);
+
+        sinon.assert.notCalled(
+          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+        );
+      });
+
+      it('does not call runPostCallAutomation when call is not ended', async function (this: Mocha.Context) {
+        const dispatch = sinon.spy();
+        await callStateChange({
+          conversationId: 'test-conversation-id',
+          callState: CallState.Accepted,
+          callEndedReason: undefined,
+          acceptedTime: 12345,
+        })(dispatch, () => getEmptyRootState(), undefined);
+
+        sinon.assert.notCalled(
+          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+        );
+      });
+    });
+
+    describe('groupCallEnded', () => {
+      const { groupCallEnded } = actions;
+
+      beforeEach(function (this: Mocha.Context) {
+        this.sandbox
+          .stub(callAutomationModule, 'runPostCallAutomation')
+          .resolves();
+      });
+
+      it('calls runPostCallAutomation for normal group call end', function (this: Mocha.Context) {
+        const dispatch = sinon.spy();
+        groupCallEnded({
+          conversationId: 'test-group-conversation-id',
+          endedReason: CallEndReason.LocalHangup,
+        })(dispatch, () => getEmptyRootState(), undefined);
+
+        sinon.assert.calledOnce(
+          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+        );
+        sinon.assert.calledWith(
+          callAutomationModule.runPostCallAutomation as sinon.SinonStub,
+          'test-group-conversation-id'
+        );
+      });
+
+      it('calls runPostCallAutomation when removed from call', function (this: Mocha.Context) {
+        const dispatch = sinon.spy();
+        groupCallEnded({
+          conversationId: 'test-group-conversation-id',
+          endedReason: CallEndReason.RemovedFromCall,
+        })(dispatch, () => getEmptyRootState(), undefined);
+
+        sinon.assert.calledOnce(
+          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+        );
+      });
+
+      it('does not call runPostCallAutomation when join request was denied', function (this: Mocha.Context) {
+        const dispatch = sinon.spy();
+        groupCallEnded({
+          conversationId: 'test-group-conversation-id',
+          endedReason: CallEndReason.DeniedRequestToJoinCall,
+        })(dispatch, () => getEmptyRootState(), undefined);
+
+        sinon.assert.notCalled(
+          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+        );
+      });
+
+      it('does not call runPostCallAutomation when max devices reached', function (this: Mocha.Context) {
+        const dispatch = sinon.spy();
+        groupCallEnded({
+          conversationId: 'test-group-conversation-id',
+          endedReason: CallEndReason.HasMaxDevices,
+        })(dispatch, () => getEmptyRootState(), undefined);
+
+        sinon.assert.notCalled(
+          callAutomationModule.runPostCallAutomation as sinon.SinonStub
         );
       });
     });

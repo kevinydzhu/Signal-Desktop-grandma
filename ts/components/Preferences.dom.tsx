@@ -135,6 +135,10 @@ export type PropsDataType = {
   hasCallNotifications: boolean;
   hasCallRingtoneNotification: boolean;
   hasAutoAnswerCalls: boolean;
+  preCallScriptPath: string | undefined;
+  hasMaximizeOnCall: boolean;
+  hasMinimizeAfterCall: boolean;
+  postCallScriptPath: string | undefined;
   hasContentProtection: boolean | undefined;
   hasCountMutedConversations: boolean;
   hasHideMenuBar?: boolean;
@@ -297,6 +301,10 @@ type PropsFunctionType = {
   onCallNotificationsChange: CheckboxChangeHandlerType;
   onCallRingtoneNotificationChange: CheckboxChangeHandlerType;
   onAutoAnswerCallsChange: CheckboxChangeHandlerType;
+  onPreCallScriptPathChange: (value: string | undefined) => unknown;
+  onMaximizeOnCallChange: CheckboxChangeHandlerType;
+  onMinimizeAfterCallChange: CheckboxChangeHandlerType;
+  onPostCallScriptPathChange: (value: string | undefined) => unknown;
   onContentProtectionChange: CheckboxChangeHandlerType;
   onCountMutedConversationsChange: CheckboxChangeHandlerType;
   onEmojiSkinToneDefaultChange: (emojiSkinTone: EmojiSkinTone) => void;
@@ -419,6 +427,10 @@ export function Preferences({
   hasCallNotifications,
   hasCallRingtoneNotification,
   hasAutoAnswerCalls,
+  preCallScriptPath,
+  hasMaximizeOnCall,
+  hasMinimizeAfterCall,
+  postCallScriptPath,
   hasContentProtection,
   hasCountMutedConversations,
   hasFailedStorySends,
@@ -468,6 +480,10 @@ export function Preferences({
   onCallNotificationsChange,
   onCallRingtoneNotificationChange,
   onAutoAnswerCallsChange,
+  onPreCallScriptPathChange,
+  onMaximizeOnCallChange,
+  onMinimizeAfterCallChange,
+  onPostCallScriptPathChange,
   onContentProtectionChange,
   onCountMutedConversationsChange,
   onEmojiSkinToneDefaultChange,
@@ -1379,6 +1395,118 @@ export function Preferences({
               </>
             )}
           </Checkbox>
+        </SettingsRow>
+        <SettingsRow title={i18n('icu:Preferences__call-automation-section')}>
+          <Control
+            left={
+              <>
+                <label
+                  className="Preferences__select-title"
+                  htmlFor="preCallScriptPath"
+                >
+                  {i18n('icu:Preferences__call-automation-pre-script')}
+                </label>
+                <div className="Preferences__description">
+                  {i18n(
+                    'icu:Preferences__call-automation-pre-script--description'
+                  )}
+                </div>
+              </>
+            }
+            right={
+              <div className="Preferences__input-with-browse">
+                <input
+                  type="text"
+                  id="preCallScriptPath"
+                  className="Preferences__input"
+                  value={preCallScriptPath ?? ''}
+                  onChange={e =>
+                    onPreCallScriptPathChange(e.target.value || undefined)
+                  }
+                  placeholder={
+                    window.Signal?.OS?.isWindows()
+                      ? 'C:\\path\\to\\script.ps1'
+                      : '/path/to/script.sh'
+                  }
+                />
+                <button
+                  type="button"
+                  className="Preferences__browse-button"
+                  onClick={async () => {
+                    const result =
+                      await window.IPC.callAutomationBrowseScript();
+                    if (result) {
+                      onPreCallScriptPathChange(result);
+                    }
+                  }}
+                >
+                  {i18n('icu:Preferences__browse')}
+                </button>
+              </div>
+            }
+          />
+          <Checkbox
+            checked={hasMaximizeOnCall}
+            label={i18n('icu:Preferences__call-automation-maximize-on-call')}
+            moduleClassName="Preferences__checkbox"
+            name="maximizeOnCall"
+            onChange={onMaximizeOnCallChange}
+          />
+          <Checkbox
+            checked={hasMinimizeAfterCall}
+            label={i18n('icu:Preferences__call-automation-minimize-after-call')}
+            moduleClassName="Preferences__checkbox"
+            name="minimizeAfterCall"
+            onChange={onMinimizeAfterCallChange}
+          />
+          <Control
+            left={
+              <>
+                <label
+                  className="Preferences__select-title"
+                  htmlFor="postCallScriptPath"
+                >
+                  {i18n('icu:Preferences__call-automation-post-script')}
+                </label>
+                <div className="Preferences__description">
+                  {i18n(
+                    'icu:Preferences__call-automation-post-script--description'
+                  )}
+                </div>
+              </>
+            }
+            right={
+              <div className="Preferences__input-with-browse">
+                <input
+                  type="text"
+                  id="postCallScriptPath"
+                  className="Preferences__input"
+                  value={postCallScriptPath ?? ''}
+                  onChange={e =>
+                    onPostCallScriptPathChange(e.target.value || undefined)
+                  }
+                  placeholder={
+                    window.Signal?.OS?.isWindows()
+                      ? 'C:\\path\\to\\script.ps1'
+                      : '/path/to/script.sh'
+                  }
+                />
+                <button
+                  type="button"
+                  className="Preferences__browse-button"
+                  onClick={async () => {
+                    const result =
+                      await window.IPC.callAutomationBrowseScript();
+                    if (result) {
+                      onPostCallScriptPathChange(result);
+                    }
+                  }}
+                >
+                  {i18n('icu:Preferences__browse')}
+                </button>
+              </div>
+            }
+          />
         </SettingsRow>
         <SettingsRow title={i18n('icu:Preferences__devices')}>
           <Control
