@@ -182,9 +182,9 @@ describe('calling duck', () => {
     callsByConversation: {
       ...stateWithGroupCall.callsByConversation,
       'fake-group-call-conversation-id': {
-        ...stateWithGroupCall.callsByConversation[
+        ...(stateWithGroupCall.callsByConversation[
           'fake-group-call-conversation-id'
-        ],
+        ] as GroupCallStateType),
         ringId: BigInt(123),
         ringerAci: generateAci(),
       },
@@ -1668,13 +1668,19 @@ describe('calling duck', () => {
         const { roomId, rootKey } = FAKE_CALL_LINK;
         const { dispatch } = await doAction({ rootKey, epoch: null });
 
-        sinon.assert.calledTwice(dispatch);
+        sinon.assert.calledThrice(dispatch);
         sinon.assert.calledWith(dispatch, {
           type: 'calling/WAITING_FOR_CALL_LINK_LOBBY',
           payload: {
             roomId,
           },
         });
+        sinon.assert.calledWith(
+          dispatch,
+          sinon.match({
+            type: 'globalModals/SHOW_ERROR_MODAL',
+          })
+        );
         sinon.assert.calledWith(dispatch, {
           type: 'calling/CALL_LOBBY_FAILED',
           payload: {
@@ -2791,9 +2797,9 @@ describe('calling duck', () => {
               ...stateWithGroupCall,
               callsByConversation: {
                 'fake-group-call-conversation-id': {
-                  ...stateWithGroupCall.callsByConversation[
+                  ...(stateWithGroupCall.callsByConversation[
                     'fake-group-call-conversation-id'
-                  ],
+                  ] as GroupCallStateType),
                   ringId: BigInt(987),
                   ringerAci,
                 },
