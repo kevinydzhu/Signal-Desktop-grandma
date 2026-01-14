@@ -1116,7 +1116,7 @@ ipc.handle('call-automation:maximize-window', () => {
   }
 });
 
-ipc.on('call-automation:minimize-to-tray', () => {
+ipc.handle('call-automation:minimize-to-tray', () => {
   if (mainWindow) {
     mainWindow.hide();
   }

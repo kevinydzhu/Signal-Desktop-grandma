@@ -1789,24 +1789,24 @@ describe('calling duck', () => {
           .resolves();
       });
 
-      function getDispatchedAction(
+      async function getDispatchedAction(
         payload: Parameters<typeof receiveIncomingGroupCall>[0]
-      ): Parameters<typeof reducer>[1] {
+      ): Promise<Parameters<typeof reducer>[1]> {
         let dispatchedAction: Parameters<typeof reducer>[1] | undefined;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dispatch: any = (action: Parameters<typeof reducer>[1]) => {
           dispatchedAction = action;
         };
         const getState = () => getEmptyRootState();
-        receiveIncomingGroupCall(payload)(dispatch, getState, undefined);
+        await receiveIncomingGroupCall(payload)(dispatch, getState, undefined);
         if (!dispatchedAction) {
           throw new Error('No action was dispatched');
         }
         return dispatchedAction;
       }
 
-      it('does nothing if the call was already ringing', () => {
-        const action = getDispatchedAction({
+      it('does nothing if the call was already ringing', async () => {
+        const action = await getDispatchedAction({
           conversationId: 'fake-group-call-conversation-id',
           ringId: BigInt(456),
           ringerAci,
@@ -1816,7 +1816,7 @@ describe('calling duck', () => {
         assert.strictEqual(result, stateWithIncomingGroupCall);
       });
 
-      it('does nothing if the call was already joined', () => {
+      it('does nothing if the call was already joined', async () => {
         const state = {
           ...stateWithGroupCall,
           callsByConversation: {
@@ -1829,7 +1829,7 @@ describe('calling duck', () => {
             },
           },
         };
-        const action = getDispatchedAction({
+        const action = await getDispatchedAction({
           conversationId: 'fake-group-call-conversation-id',
           ringId: BigInt(456),
           ringerAci,
@@ -1839,8 +1839,8 @@ describe('calling duck', () => {
         assert.strictEqual(result, state);
       });
 
-      it('creates a new group call if one did not exist', () => {
-        const action = getDispatchedAction({
+      it('creates a new group call if one did not exist', async () => {
+        const action = await getDispatchedAction({
           conversationId: 'fake-group-call-conversation-id',
           ringId: BigInt(456),
           ringerAci,
@@ -1868,8 +1868,8 @@ describe('calling duck', () => {
         );
       });
 
-      it('attaches ring state to an existing call', () => {
-        const action = getDispatchedAction({
+      it('attaches ring state to an existing call', async () => {
+        const action = await getDispatchedAction({
           conversationId: 'fake-group-call-conversation-id',
           ringId: BigInt(456),
           ringerAci,
@@ -1885,8 +1885,8 @@ describe('calling duck', () => {
         );
       });
 
-      it('calls runPreCallAutomation when receiving an incoming group call', function (this: Mocha.Context) {
-        getDispatchedAction({
+      it('calls runPreCallAutomation when receiving an incoming group call', async function (this: Mocha.Context) {
+        await getDispatchedAction({
           conversationId: 'fake-group-call-conversation-id',
           ringId: BigInt(456),
           ringerAci,
@@ -1908,16 +1908,16 @@ describe('calling duck', () => {
           .resolves();
       });
 
-      function dispatchAndGetAction(
+      async function dispatchAndGetAction(
         payload: Parameters<typeof receiveIncomingDirectCall>[0],
         initialState: RootStateType = getEmptyRootState()
-      ): Parameters<typeof reducer>[1] {
+      ): Promise<Parameters<typeof reducer>[1]> {
         let dispatchedAction: Parameters<typeof reducer>[1] | undefined;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dispatch: any = (action: Parameters<typeof reducer>[1]) => {
           dispatchedAction = action;
         };
-        receiveIncomingDirectCall(payload)(
+        await receiveIncomingDirectCall(payload)(
           dispatch,
           () => initialState,
           undefined
@@ -1928,8 +1928,8 @@ describe('calling duck', () => {
         return dispatchedAction;
       }
 
-      it('calls runPreCallAutomation when receiving an incoming direct call', function (this: Mocha.Context) {
-        dispatchAndGetAction({
+      it('calls runPreCallAutomation when receiving an incoming direct call', async function (this: Mocha.Context) {
+        await dispatchAndGetAction({
           conversationId: 'test-conversation-id',
           isVideoCall: false,
         });
@@ -1940,8 +1940,8 @@ describe('calling duck', () => {
         );
       });
 
-      it('creates a new direct call entry', () => {
-        const action = dispatchAndGetAction({
+      it('creates a new direct call entry', async () => {
+        const action = await dispatchAndGetAction({
           conversationId: 'test-conversation-id',
           isVideoCall: true,
         });
@@ -1958,7 +1958,7 @@ describe('calling duck', () => {
         });
       });
 
-      it('stops calling lobby if there is an active call for the same conversation', function (this: Mocha.Context) {
+      it('stops calling lobby if there is an active call for the same conversation', async function (this: Mocha.Context) {
         const stopCallingLobby = this.sandbox.stub(
           callingService,
           'stopCallingLobby'
@@ -1986,7 +1986,7 @@ describe('calling duck', () => {
           },
         };
 
-        dispatchAndGetAction(
+        await dispatchAndGetAction(
           {
             conversationId: 'test-conversation-id',
             isVideoCall: false,
