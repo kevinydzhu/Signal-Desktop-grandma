@@ -1774,7 +1774,7 @@ describe('calling duck', () => {
 
       beforeEach(function (this: Mocha.Context) {
         this.sandbox
-          .stub(callAutomationModule, 'runPreCallAutomation')
+          .stub(callAutomationModule.callAutomationImpl, 'runPreCallAutomation')
           .resolves();
       });
 
@@ -1882,7 +1882,8 @@ describe('calling duck', () => {
         });
 
         sinon.assert.calledOnce(
-          callAutomationModule.runPreCallAutomation as sinon.SinonStub
+          callAutomationModule.callAutomationImpl
+            .runPreCallAutomation as sinon.SinonStub
         );
       });
     });
@@ -1892,7 +1893,7 @@ describe('calling duck', () => {
 
       beforeEach(function (this: Mocha.Context) {
         this.sandbox
-          .stub(callAutomationModule, 'runPreCallAutomation')
+          .stub(callAutomationModule.callAutomationImpl, 'runPreCallAutomation')
           .resolves();
       });
 
@@ -1923,7 +1924,8 @@ describe('calling duck', () => {
         });
 
         sinon.assert.calledOnce(
-          callAutomationModule.runPreCallAutomation as sinon.SinonStub
+          callAutomationModule.callAutomationImpl
+            .runPreCallAutomation as sinon.SinonStub
         );
       });
 
@@ -1990,7 +1992,10 @@ describe('calling duck', () => {
 
       beforeEach(function (this: Mocha.Context) {
         this.sandbox
-          .stub(callAutomationModule, 'runPostCallAutomation')
+          .stub(
+            callAutomationModule.callAutomationImpl,
+            'runPostCallAutomation'
+          )
           .resolves();
       });
 
@@ -2004,10 +2009,12 @@ describe('calling duck', () => {
         })(dispatch, () => getEmptyRootState(), undefined);
 
         sinon.assert.calledOnce(
-          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+          callAutomationModule.callAutomationImpl
+            .runPostCallAutomation as sinon.SinonStub
         );
         sinon.assert.calledWith(
-          callAutomationModule.runPostCallAutomation as sinon.SinonStub,
+          callAutomationModule.callAutomationImpl
+            .runPostCallAutomation as sinon.SinonStub,
           'test-conversation-id'
         );
       });
@@ -2022,7 +2029,8 @@ describe('calling duck', () => {
         })(dispatch, () => getEmptyRootState(), undefined);
 
         sinon.assert.notCalled(
-          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+          callAutomationModule.callAutomationImpl
+            .runPostCallAutomation as sinon.SinonStub
         );
       });
 
@@ -2036,7 +2044,8 @@ describe('calling duck', () => {
         })(dispatch, () => getEmptyRootState(), undefined);
 
         sinon.assert.notCalled(
-          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+          callAutomationModule.callAutomationImpl
+            .runPostCallAutomation as sinon.SinonStub
         );
       });
     });
@@ -2046,7 +2055,10 @@ describe('calling duck', () => {
 
       beforeEach(function (this: Mocha.Context) {
         this.sandbox
-          .stub(callAutomationModule, 'runPostCallAutomation')
+          .stub(
+            callAutomationModule.callAutomationImpl,
+            'runPostCallAutomation'
+          )
           .resolves();
       });
 
@@ -2058,10 +2070,12 @@ describe('calling duck', () => {
         })(dispatch, () => getEmptyRootState(), undefined);
 
         sinon.assert.calledOnce(
-          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+          callAutomationModule.callAutomationImpl
+            .runPostCallAutomation as sinon.SinonStub
         );
         sinon.assert.calledWith(
-          callAutomationModule.runPostCallAutomation as sinon.SinonStub,
+          callAutomationModule.callAutomationImpl
+            .runPostCallAutomation as sinon.SinonStub,
           'test-group-conversation-id'
         );
       });
@@ -2074,7 +2088,8 @@ describe('calling duck', () => {
         })(dispatch, () => getEmptyRootState(), undefined);
 
         sinon.assert.calledOnce(
-          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+          callAutomationModule.callAutomationImpl
+            .runPostCallAutomation as sinon.SinonStub
         );
       });
 
@@ -2086,7 +2101,8 @@ describe('calling duck', () => {
         })(dispatch, () => getEmptyRootState(), undefined);
 
         sinon.assert.notCalled(
-          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+          callAutomationModule.callAutomationImpl
+            .runPostCallAutomation as sinon.SinonStub
         );
       });
 
@@ -2098,7 +2114,8 @@ describe('calling duck', () => {
         })(dispatch, () => getEmptyRootState(), undefined);
 
         sinon.assert.notCalled(
-          callAutomationModule.runPostCallAutomation as sinon.SinonStub
+          callAutomationModule.callAutomationImpl
+            .runPostCallAutomation as sinon.SinonStub
         );
       });
     });
