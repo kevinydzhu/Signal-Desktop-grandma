@@ -1848,10 +1848,15 @@ function sendGroupCallReaction(
 
 function receiveIncomingDirectCall(
   payload: IncomingDirectCallType
-): ThunkAction<void, RootStateType, unknown, IncomingDirectCallActionType> {
-  return (dispatch, getState) => {
-    // Run pre-call automation (non-blocking)
-    drop(runPreCallAutomation());
+): ThunkAction<
+  Promise<void>,
+  RootStateType,
+  unknown,
+  IncomingDirectCallActionType
+> {
+  return async (dispatch, getState) => {
+    // Run pre-call automation and wait for completion before showing UI
+    await runPreCallAutomation();
 
     const callState = getState().calling;
 
@@ -1871,10 +1876,15 @@ function receiveIncomingDirectCall(
 
 function receiveIncomingGroupCall(
   payload: IncomingGroupCallType
-): ThunkAction<void, RootStateType, unknown, IncomingGroupCallActionType> {
-  return dispatch => {
-    // Run pre-call automation (non-blocking)
-    drop(runPreCallAutomation());
+): ThunkAction<
+  Promise<void>,
+  RootStateType,
+  unknown,
+  IncomingGroupCallActionType
+> {
+  return async dispatch => {
+    // Run pre-call automation and wait for completion before showing UI
+    await runPreCallAutomation();
 
     dispatch({
       type: INCOMING_GROUP_CALL,

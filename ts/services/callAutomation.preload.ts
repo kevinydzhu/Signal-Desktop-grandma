@@ -46,7 +46,7 @@ async function runPreCallAutomationImpl(): Promise<void> {
   // Then maximize window
   if (shouldMaximize) {
     log.info('Maximizing window for incoming call');
-    window.IPC.callAutomationMaximizeWindow();
+    await window.IPC.callAutomationMaximizeWindow();
   }
 }
 
