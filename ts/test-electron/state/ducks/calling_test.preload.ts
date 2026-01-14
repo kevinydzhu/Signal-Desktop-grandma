@@ -1897,6 +1897,36 @@ describe('calling duck', () => {
             .runPreCallAutomation as sinon.SinonStub
         );
       });
+
+      it('dispatches action BEFORE running automation to avoid race condition', async function (this: Mocha.Context) {
+        const callOrder: Array<string> = [];
+
+        // Track when dispatch happens
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dispatch: any = (action: Parameters<typeof reducer>[1]) => {
+          callOrder.push('dispatch');
+          return action;
+        };
+
+        // Track when automation happens
+        const automationStub = callAutomationModule.callAutomationImpl
+          .runPreCallAutomation as sinon.SinonStub;
+        automationStub.callsFake(async () => {
+          callOrder.push('automation');
+        });
+
+        await receiveIncomingGroupCall({
+          conversationId: 'fake-group-call-conversation-id',
+          ringId: BigInt(456),
+          ringerAci,
+        })(dispatch, () => getEmptyRootState(), undefined);
+
+        assert.deepEqual(
+          callOrder,
+          ['dispatch', 'automation'],
+          'Action must be dispatched before automation runs to prevent race condition with RingRTC state changes'
+        );
+      });
     });
 
     describe('receiveIncomingDirectCall', () => {
@@ -1995,6 +2025,35 @@ describe('calling duck', () => {
         );
 
         sinon.assert.calledOnce(stopCallingLobby);
+      });
+
+      it('dispatches action BEFORE running automation to avoid race condition', async function (this: Mocha.Context) {
+        const callOrder: Array<string> = [];
+
+        // Track when dispatch happens
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dispatch: any = (action: Parameters<typeof reducer>[1]) => {
+          callOrder.push('dispatch');
+          return action;
+        };
+
+        // Track when automation happens
+        const automationStub = callAutomationModule.callAutomationImpl
+          .runPreCallAutomation as sinon.SinonStub;
+        automationStub.callsFake(async () => {
+          callOrder.push('automation');
+        });
+
+        await receiveIncomingDirectCall({
+          conversationId: 'test-conversation-id',
+          isVideoCall: false,
+        })(dispatch, () => getEmptyRootState(), undefined);
+
+        assert.deepEqual(
+          callOrder,
+          ['dispatch', 'automation'],
+          'Action must be dispatched before automation runs to prevent race condition with RingRTC state changes'
+        );
       });
     });
 
