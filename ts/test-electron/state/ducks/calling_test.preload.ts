@@ -5,6 +5,7 @@ import { assert } from 'chai';
 import * as sinon from 'sinon';
 import lodash from 'lodash';
 import type { PeekInfo } from '@signalapp/ringrtc';
+import { CallEndReason } from '@signalapp/ringrtc';
 import type {
   StateType as RootStateType,
   StateType,
@@ -39,7 +40,6 @@ import {
   GroupCallConnectionState,
   GroupCallJoinState,
 } from '../../../types/Calling.std.js';
-import { CallEndReason } from '@signalapp/ringrtc';
 import { CallMode } from '../../../types/CallDisposition.std.js';
 import { generateAci } from '../../../types/ServiceId.std.js';
 import { getDefaultConversation } from '../../../test-helpers/getDefaultConversation.std.js';
@@ -1946,7 +1946,10 @@ describe('calling duck', () => {
       });
 
       it('stops calling lobby if there is an active call for the same conversation', function (this: Mocha.Context) {
-        const stopCallingLobby = this.sandbox.stub(callingService, 'stopCallingLobby');
+        const stopCallingLobby = this.sandbox.stub(
+          callingService,
+          'stopCallingLobby'
+        );
 
         const stateWithActiveLobby: RootStateType = {
           ...getEmptyRootState(),
