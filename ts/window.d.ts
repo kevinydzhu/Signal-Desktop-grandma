@@ -68,7 +68,7 @@ export type IPCType = {
   titleBarDoubleClick: () => void;
   updateTrayIcon: (count: number) => void;
   callAutomationMaximizeWindow: () => Promise<void>;
-  callAutomationMinimizeToTray: () => void;
+  callAutomationMinimizeToTray: () => Promise<void>;
   callAutomationRunScript: (
     scriptPath: string
   ) => Promise<{ success: boolean; error?: string }>;

@@ -72,7 +72,7 @@ async function runPostCallAutomationImpl(
   // Minimize first
   if (shouldMinimize) {
     log.info('Minimizing to tray after call');
-    window.IPC.callAutomationMinimizeToTray();
+    await window.IPC.callAutomationMinimizeToTray();
   }
 
   // Then run script

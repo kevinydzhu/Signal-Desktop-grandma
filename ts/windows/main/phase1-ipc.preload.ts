@@ -165,7 +165,7 @@ const IPC: IPCType = {
   callAutomationMaximizeWindow: () =>
     ipc.invoke('call-automation:maximize-window'),
   callAutomationMinimizeToTray: () =>
-    ipc.send('call-automation:minimize-to-tray'),
+    ipc.invoke('call-automation:minimize-to-tray'),
   callAutomationRunScript: (scriptPath: string) =>
     ipc.invoke('call-automation:run-script', scriptPath),
   callAutomationBrowseScript: () => ipc.invoke('call-automation:browse-script'),
