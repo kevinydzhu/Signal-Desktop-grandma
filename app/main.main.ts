@@ -1138,7 +1138,7 @@ ipc.handle(
       let args: Array<string>;
 
       if (platform === 'win32') {
-        if (!scriptPath.endsWith('.ps1')) {
+        if (extname(scriptPath).toLowerCase() !== '.ps1') {
           return {
             success: false,
             error: 'Script must be a .ps1 file on Windows',
