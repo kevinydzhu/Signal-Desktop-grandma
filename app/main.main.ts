@@ -4,6 +4,7 @@
 import { join, normalize, extname, dirname, basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as os from 'node:os';
+import { spawn } from 'node:child_process';
 import fsExtra from 'fs-extra';
 import { randomBytes } from 'node:crypto';
 import { createParser } from 'dashdash';
@@ -1104,6 +1105,132 @@ ipc.on('art-creator:onUploadProgress', () => {
 ipc.on('show-window', () => {
   showWindow();
 });
+
+// Call automation IPC handlers
+ipc.on('call-automation:maximize-window', () => {
+  if (mainWindow) {
+    showWindow();
+    if (!mainWindow.isMaximized()) {
+      mainWindow.maximize();
+    }
+  }
+});
+
+ipc.on('call-automation:minimize-to-tray', () => {
+  if (mainWindow) {
+    mainWindow.hide();
+  }
+});
+
+ipc.handle(
+  'call-automation:run-script',
+  async (
+    _event,
+    scriptPath: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!scriptPath) {
+      return { success: false, error: 'No script path provided' };
+    }
+
+    try {
+      const { platform } = process;
+      let command: string;
+      let args: Array<string>;
+
+      if (platform === 'win32') {
+        if (extname(scriptPath).toLowerCase() !== '.ps1') {
+          return {
+            success: false,
+            error: 'Script must be a .ps1 file on Windows',
+          };
+        }
+        command = 'powershell.exe';
+        args = ['-ExecutionPolicy', 'Bypass', '-File', scriptPath];
+      } else {
+        if (!scriptPath.endsWith('.sh')) {
+          return {
+            success: false,
+            error: 'Script must be a .sh file on macOS/Linux',
+          };
+        }
+        command = '/bin/sh';
+        args = [scriptPath];
+      }
+
+      const scriptExists = await fsExtra.pathExists(scriptPath);
+      if (!scriptExists) {
+        return {
+          success: false,
+          error: `Script file not found: ${scriptPath}`,
+        };
+      }
+
+      const SCRIPT_TIMEOUT_MS = 10000; // 10 second timeout
+
+      return new Promise(resolve => {
+        const child = spawn(command, args, {
+          stdio: 'ignore',
+        });
+
+        const timeoutId = setTimeout(() => {
+          log.warn(
+            `Call automation: script timed out after ${SCRIPT_TIMEOUT_MS}ms, continuing anyway`
+          );
+          child.kill();
+          resolve({ success: true });
+        }, SCRIPT_TIMEOUT_MS);
+
+        child.on('close', code => {
+          clearTimeout(timeoutId);
+          if (code === 0) {
+            log.info('Call automation: script completed successfully');
+            resolve({ success: true });
+          } else {
+            log.warn(`Call automation: script exited with code ${code}`);
+            resolve({ success: true }); // Still return success to not block call
+          }
+        });
+
+        child.on('error', err => {
+          clearTimeout(timeoutId);
+          log.error(`Call automation: script error: ${err.message}`);
+          resolve({ success: false, error: err.message });
+        });
+
+        log.info(`Call automation: running script ${scriptPath}`);
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      log.error(`Call automation: script execution failed: ${errorMessage}`);
+      return { success: false, error: errorMessage };
+    }
+  }
+);
+
+ipc.handle(
+  'call-automation:browse-script',
+  async (): Promise<string | null> => {
+    const { platform } = process;
+    const isWindows = platform === 'win32';
+
+    const filters = isWindows
+      ? [{ name: 'PowerShell Scripts', extensions: ['ps1'] }]
+      : [{ name: 'Shell Scripts', extensions: ['sh'] }];
+
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters,
+      title: 'Select Automation Script',
+    });
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return null;
+    }
+
+    return result.filePaths[0];
+  }
+);
 
 ipc.on('start-tracking-query-stats', () => {
   sql.startTrackingQueryStats();

@@ -25,6 +25,10 @@ import {
   type DesktopCapturerBaton,
 } from '../../util/desktopCapturer.preload.js';
 import { calling } from '../../services/calling.preload.js';
+import {
+  runPreCallAutomation,
+  runPostCallAutomation,
+} from '../../services/callAutomation.preload.js';
 import { truncateAudioLevel } from '../../calling/truncateAudioLevel.std.js';
 import type { StateType as RootStateType } from '../reducer.preload.js';
 import type {
@@ -1323,6 +1327,16 @@ function callStateChange(
       await callingTones.playEndCall();
     }
 
+    // Run post-call automation when call ends
+    if (isEnded && wasAccepted) {
+      drop(
+        runPostCallAutomation(
+          payload.conversationId,
+          payload.acceptedTime ?? undefined
+        )
+      );
+    }
+
     dispatch({
       type: CALL_STATE_CHANGE_FULFILLED,
       payload,
@@ -1520,9 +1534,16 @@ function groupCallEnded(
   GroupCallEndedActionType | ShowErrorModalActionType
 > {
   return (dispatch, getState) => {
+    const state = getState();
     const { endedReason } = payload;
+    const callInstanceId =
+      state.calling.activeCallState?.state === 'Active' &&
+      state.calling.activeCallState?.conversationId === payload.conversationId
+        ? (state.calling.activeCallState.joinedAt ?? undefined)
+        : undefined;
+
     if (endedReason === CallEndReason.DeniedRequestToJoinCall) {
-      const i18n = getIntl(getState());
+      const i18n = getIntl(state);
       dispatch({
         type: SHOW_ERROR_MODAL,
         payload: {
@@ -1534,7 +1555,9 @@ function groupCallEnded(
       return;
     }
     if (endedReason === CallEndReason.RemovedFromCall) {
-      const i18n = getIntl(getState());
+      const i18n = getIntl(state);
+      // Run post-call automation since user was in the call
+      drop(runPostCallAutomation(payload.conversationId, callInstanceId));
       dispatch({
         type: SHOW_ERROR_MODAL,
         payload: {
@@ -1546,7 +1569,7 @@ function groupCallEnded(
       return;
     }
     if (endedReason === CallEndReason.HasMaxDevices) {
-      const i18n = getIntl(getState());
+      const i18n = getIntl(state);
       dispatch({
         type: SHOW_ERROR_MODAL,
         payload: {
@@ -1557,6 +1580,9 @@ function groupCallEnded(
       });
       return;
     }
+
+    // Run post-call automation for normal group call end
+    drop(runPostCallAutomation(payload.conversationId, callInstanceId));
 
     dispatch({ type: GROUP_CALL_ENDED, payload });
   };
@@ -1822,6 +1848,9 @@ function receiveIncomingDirectCall(
   payload: IncomingDirectCallType
 ): ThunkAction<void, RootStateType, unknown, IncomingDirectCallActionType> {
   return (dispatch, getState) => {
+    // Run pre-call automation (non-blocking)
+    drop(runPreCallAutomation());
+
     const callState = getState().calling;
 
     if (
@@ -1840,10 +1869,15 @@ function receiveIncomingDirectCall(
 
 function receiveIncomingGroupCall(
   payload: IncomingGroupCallType
-): IncomingGroupCallActionType {
-  return {
-    type: INCOMING_GROUP_CALL,
-    payload,
+): ThunkAction<void, RootStateType, unknown, IncomingGroupCallActionType> {
+  return dispatch => {
+    // Run pre-call automation (non-blocking)
+    drop(runPreCallAutomation());
+
+    dispatch({
+      type: INCOMING_GROUP_CALL,
+      payload,
+    });
   };
 }
 

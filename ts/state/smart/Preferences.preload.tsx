@@ -651,6 +651,22 @@ export function SmartPreferences(): JSX.Element | null {
     'auto-answer-calls',
     false
   );
+  const [preCallScriptPath, onPreCallScriptPathChange] = createItemsAccess(
+    'call-automation-pre-script-path',
+    undefined
+  );
+  const [hasMaximizeOnCall, onMaximizeOnCallChange] = createItemsAccess(
+    'call-automation-maximize-on-call',
+    false
+  );
+  const [hasMinimizeAfterCall, onMinimizeAfterCallChange] = createItemsAccess(
+    'call-automation-minimize-after-call',
+    false
+  );
+  const [postCallScriptPath, onPostCallScriptPathChange] = createItemsAccess(
+    'call-automation-post-script-path',
+    undefined
+  );
   const [hasCountMutedConversations, onCountMutedConversationsChange] =
     createItemsAccess('badge-count-muted-conversations', false, () => {
       window.Whisper.events.emit('updateUnreadCount');
@@ -845,6 +861,10 @@ export function SmartPreferences(): JSX.Element | null {
           hasCallNotifications={hasCallNotifications}
           hasCallRingtoneNotification={hasCallRingtoneNotification}
           hasAutoAnswerCalls={hasAutoAnswerCalls}
+          preCallScriptPath={preCallScriptPath}
+          hasMaximizeOnCall={hasMaximizeOnCall}
+          hasMinimizeAfterCall={hasMinimizeAfterCall}
+          postCallScriptPath={postCallScriptPath}
           hasContentProtection={hasContentProtection}
           hasCountMutedConversations={hasCountMutedConversations}
           hasFailedStorySends={hasFailedStorySends}
@@ -896,6 +916,10 @@ export function SmartPreferences(): JSX.Element | null {
           onCallNotificationsChange={onCallNotificationsChange}
           onCallRingtoneNotificationChange={onCallRingtoneNotificationChange}
           onAutoAnswerCallsChange={onAutoAnswerCallsChange}
+          onPreCallScriptPathChange={onPreCallScriptPathChange}
+          onMaximizeOnCallChange={onMaximizeOnCallChange}
+          onMinimizeAfterCallChange={onMinimizeAfterCallChange}
+          onPostCallScriptPathChange={onPostCallScriptPathChange}
           onContentProtectionChange={onContentProtectionChange}
           onCountMutedConversationsChange={onCountMutedConversationsChange}
           onEmojiSkinToneDefaultChange={onEmojiSkinToneDefaultChange}
