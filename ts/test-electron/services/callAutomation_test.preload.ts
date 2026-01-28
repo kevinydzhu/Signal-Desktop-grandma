@@ -52,9 +52,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPreCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPreCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
       await runPreCallAutomation();
 
       sinon.assert.notCalled(mockIPC.callAutomationRunScript);
@@ -73,9 +72,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPreCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPreCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
       await runPreCallAutomation();
 
       sinon.assert.calledOnceWithExactly(
@@ -96,9 +94,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPreCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPreCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
       await runPreCallAutomation();
 
       sinon.assert.notCalled(mockIPC.callAutomationRunScript);
@@ -117,9 +114,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPreCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPreCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
       await runPreCallAutomation();
 
       sinon.assert.calledOnce(mockIPC.callAutomationRunScript);
@@ -147,9 +143,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPreCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPreCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
 
       // Should not throw even with script error
       await runPreCallAutomation();
@@ -172,9 +167,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPreCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPreCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
 
       // Should not throw even with IPC error
       await runPreCallAutomation();
@@ -204,9 +198,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPreCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPreCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
 
       const automationPromise = runPreCallAutomation();
 
@@ -273,9 +266,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPreCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPreCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
 
       const automationPromise = runPreCallAutomation();
 
@@ -320,9 +312,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPostCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPostCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
       await runPostCallAutomation('conversation-1');
 
       sinon.assert.notCalled(mockIPC.callAutomationMinimizeToTray);
@@ -340,9 +331,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPostCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPostCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
       await runPostCallAutomation('conversation-2');
 
       sinon.assert.calledOnce(mockIPC.callAutomationMinimizeToTray);
@@ -361,9 +351,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPostCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPostCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
       await runPostCallAutomation('conversation-3');
 
       sinon.assert.notCalled(mockIPC.callAutomationMinimizeToTray);
@@ -385,9 +374,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPostCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPostCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
       await runPostCallAutomation('conversation-4');
 
       sinon.assert.calledOnce(mockIPC.callAutomationMinimizeToTray);
@@ -410,9 +398,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPostCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPostCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
 
       // First call should run
       await runPostCallAutomation('conversation-dedup', 123);
@@ -437,9 +424,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPostCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPostCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
 
       await runPostCallAutomation('conversation-dedup', 1);
       await runPostCallAutomation('conversation-dedup', 2);
@@ -460,9 +446,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPostCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPostCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
 
       // First call
       await runPostCallAutomation('conversation-a');
@@ -490,9 +475,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPostCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPostCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
 
       // Should not throw
       await runPostCallAutomation('conversation-error');
@@ -512,9 +496,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPostCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPostCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
 
       await runPostCallAutomation();
       sinon.assert.calledOnce(mockIPC.callAutomationMinimizeToTray);
@@ -556,9 +539,8 @@ describe('callAutomation', function (this: Mocha.Suite) {
         return undefined;
       });
 
-      const { runPostCallAutomation } = await import(
-        '../../services/callAutomation.preload.js'
-      );
+      const { runPostCallAutomation } =
+        await import('../../services/callAutomation.preload.js');
 
       const automationPromise = runPostCallAutomation('test-conv');
 
