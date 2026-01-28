@@ -48,7 +48,8 @@
       "Bash(npx eslint:*)",
       "Bash(pnpm run eslint:*)",
       "Bash(pnpm exec prettier:*)",
-      "Bash(pnpm run test-electron:*)"
+      "Bash(pnpm run test-electron:*)",
+      "Bash(pnpm exec eslint:*)"
     ]
   },
   "hooks": {

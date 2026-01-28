@@ -474,10 +474,7 @@ function MessagePreview(props: { i18n: LocalizerType; message: PinMessage }) {
     <>
       {preview.icon != null && (
         <>
-          <AxoSymbol.InlineGlyph
-            symbol={preview.icon.symbol}
-            label={null}
-          />{' '}
+          <AxoSymbol.InlineGlyph symbol={preview.icon.symbol} label={null} />{' '}
         </>
       )}
       {preview.text}

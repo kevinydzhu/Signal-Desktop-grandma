@@ -174,7 +174,9 @@ export type IncomingWebSocketRequest = {
   respond(status: number, message: string): void;
 };
 
-export class IncomingWebSocketRequestLibsignal implements IncomingWebSocketRequest {
+export class IncomingWebSocketRequestLibsignal
+  implements IncomingWebSocketRequest
+{
   constructor(
     readonly requestType: ServerRequestType,
     readonly body: Uint8Array | undefined,
@@ -187,7 +189,9 @@ export class IncomingWebSocketRequestLibsignal implements IncomingWebSocketReque
   }
 }
 
-export class IncomingWebSocketRequestLegacy implements IncomingWebSocketRequest {
+export class IncomingWebSocketRequestLegacy
+  implements IncomingWebSocketRequest
+{
   readonly #id: Long;
 
   public readonly requestType: ServerRequestType;

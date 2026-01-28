@@ -163,7 +163,7 @@ export const isInSpeakerView = (
 ): boolean => {
   return Boolean(
     call?.viewMode === CallViewMode.Presentation ||
-    call?.viewMode === CallViewMode.Speaker
+      call?.viewMode === CallViewMode.Speaker
   );
 };
 

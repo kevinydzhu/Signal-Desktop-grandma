@@ -1002,9 +1002,9 @@ export class Message extends React.PureComponent<Props, State> {
       this.props;
     return Boolean(
       direction === 'incoming' &&
-      conversationType === 'group' &&
-      author.title &&
-      !shouldCollapseAbove
+        conversationType === 'group' &&
+        author.title &&
+        !shouldCollapseAbove
     );
   }
 
@@ -2463,8 +2463,8 @@ export class Message extends React.PureComponent<Props, State> {
       const firstPreview = previews[0];
       const inAnotherCall = Boolean(
         activeCallConversationId &&
-        (!firstPreview.callLinkRoomId ||
-          activeCallConversationId !== firstPreview.callLinkRoomId)
+          (!firstPreview.callLinkRoomId ||
+            activeCallConversationId !== firstPreview.callLinkRoomId)
       );
 
       const joinButton = (
@@ -2727,7 +2727,7 @@ export class Message extends React.PureComponent<Props, State> {
     const isViewed = readStatus === ReadStatus.Viewed;
     const isExpired = Boolean(
       !isViewed &&
-      (isTapToViewExpired || firstAttachment?.isPermanentlyUndownloadable)
+        (isTapToViewExpired || firstAttachment?.isPermanentlyUndownloadable)
     );
     const isError = isTapToViewError || attachmentDroppedDueToSize;
 
