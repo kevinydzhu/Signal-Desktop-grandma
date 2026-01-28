@@ -7,11 +7,21 @@ sync: setup-upstream fetch-upstream
 ifndef UPSTREAM_TAG
 	$(error UPSTREAM_TAG is required. Usage: make sync UPSTREAM_TAG=v7.0.0)
 endif
+	@echo "Creating $(UPSTREAM_TAG)-upstream branch from upstream tag..."
+	git checkout -b $(UPSTREAM_TAG)-upstream $(UPSTREAM_TAG)
+	git push origin $(UPSTREAM_TAG)-upstream
+	@echo "Checking out main..."
+	git checkout main
 	$(eval LAST_UPSTREAM := $(shell git log --pretty=format:'%H %D' | grep -m1 'upstream/' | cut -d' ' -f1))
 	$(eval LAST_UPSTREAM_DESC := $(shell git describe --tags --exact-match $(LAST_UPSTREAM) 2>/dev/null || echo $(LAST_UPSTREAM)))
 	@echo "Last upstream commit: $(LAST_UPSTREAM_DESC)"
-	@echo "Rebasing onto: $(UPSTREAM_TAG)"
-	git rebase --onto $(UPSTREAM_TAG) $(LAST_UPSTREAM)
+	@echo "Creating $(UPSTREAM_TAG) branch and rebasing..."
+	git checkout -b $(UPSTREAM_TAG)
+	git rebase --onto $(UPSTREAM_TAG)-upstream $(LAST_UPSTREAM)
+	@echo "Running pnpm install..."
+	pnpm i
+	@echo "Running pnpm run generate..."
+	pnpm run generate
 
 setup-upstream:
 	@if ! git remote get-url upstream >/dev/null 2>&1; then \
