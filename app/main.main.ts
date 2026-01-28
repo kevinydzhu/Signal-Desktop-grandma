@@ -1109,7 +1109,25 @@ ipc.on('show-window', () => {
 // Call automation IPC handlers
 ipc.handle('call-automation:maximize-window', () => {
   if (mainWindow) {
-    showWindow();
+    // Windows workaround: must send dummy keystroke to allow focus stealing
+    if (OS.isWindows()) {
+      sendDummyKeystroke();
+    }
+
+    // Handle minimized state first (minimized to taskbar)
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+
+    // Handle hidden state (minimized to tray)
+    if (!mainWindow.isVisible()) {
+      mainWindow.show();
+    }
+
+    // Bring to front and focus (handles GNOME quirks)
+    focusAndForceToTop(mainWindow);
+
+    // Finally, maximize if not already
     if (!mainWindow.isMaximized()) {
       mainWindow.maximize();
     }
