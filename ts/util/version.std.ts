@@ -49,6 +49,7 @@ export const generateTaggedVersion = (options: {
     day: '2-digit',
     hour: '2-digit',
     hourCycle: 'h23',
+    minute: '2-digit',
     month: '2-digit',
     timeZone: 'GMT',
     year: 'numeric',
@@ -59,7 +60,9 @@ export const generateTaggedVersion = (options: {
   });
   const formattedDate = `${dateTimeMap.get('year')}${dateTimeMap.get(
     'month'
-  )}${dateTimeMap.get('day')}.${dateTimeMap.get('hour')}`;
+  )}${dateTimeMap.get('day')}${dateTimeMap.get('hour')}${dateTimeMap.get(
+    'minute'
+  )}`;
 
   const formattedVersion = `${parsed.major}.${parsed.minor}.${parsed.patch}`;
 
@@ -67,11 +70,13 @@ export const generateTaggedVersion = (options: {
 };
 
 export const extractBuildDate = (version: string): string | undefined => {
-  const match = version.match(/-(\d{4})(\d{2})(\d{2})-/);
-  return match ? `${match[1]}-${match[2]}-${match[3]}` : undefined;
+  const match = version.match(/-(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})-/);
+  return match
+    ? `${match[1]}-${match[2]}-${match[3]} ${match[4]}:${match[5]}`
+    : undefined;
 };
 
 export const extractCommitHash = (version: string): string | undefined => {
-  const match = version.match(/-\d{8}-([a-f0-9]+)$/);
+  const match = version.match(/-\d{12}-([a-f0-9]+)$/);
   return match ? match[1] : undefined;
 };

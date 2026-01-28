@@ -121,7 +121,7 @@ describe('version utilities', () => {
       const currentVersion = '5.12.0-beta.1';
       const shortSha = '07f0efc45';
 
-      const expected = '5.12.0-alpha.20210723.01-07f0efc45';
+      const expected = '5.12.0-alpha.202107230122-07f0efc45';
       const actual = generateTaggedVersion({
         release: 'alpha',
         currentVersion,
@@ -211,16 +211,16 @@ describe('version utilities', () => {
 
     it('extracts build date from version with build metadata', () => {
       assert.strictEqual(
-        extractBuildDate('7.84.0-20260114-abc1234'),
-        '2026-01-14'
+        extractBuildDate('7.84.0-202601141530-abc1234'),
+        '2026-01-14 15:30'
       );
       assert.strictEqual(
-        extractBuildDate('7.84.0-beta-20251225-def5678'),
-        '2025-12-25'
+        extractBuildDate('7.84.0-beta-202512250900-def5678'),
+        '2025-12-25 09:00'
       );
       assert.strictEqual(
-        extractBuildDate('1.0.0-20210101-1234567'),
-        '2021-01-01'
+        extractBuildDate('1.0.0-202101010000-1234567'),
+        '2021-01-01 00:00'
       );
     });
   });
@@ -234,22 +234,22 @@ describe('version utilities', () => {
 
     it('extracts commit hash from version with build metadata', () => {
       assert.strictEqual(
-        extractCommitHash('7.84.0-20260114-abc1234'),
+        extractCommitHash('7.84.0-202601141530-abc1234'),
         'abc1234'
       );
       assert.strictEqual(
-        extractCommitHash('7.84.0-beta-20251225-def5678'),
+        extractCommitHash('7.84.0-beta-202512250900-def5678'),
         'def5678'
       );
       assert.strictEqual(
-        extractCommitHash('1.0.0-20210101-1234567'),
+        extractCommitHash('1.0.0-202101010000-1234567'),
         '1234567'
       );
     });
 
     it('handles longer commit hashes', () => {
       assert.strictEqual(
-        extractCommitHash('7.84.0-20260114-abc1234def'),
+        extractCommitHash('7.84.0-202601141530-abc1234def'),
         'abc1234def'
       );
     });
