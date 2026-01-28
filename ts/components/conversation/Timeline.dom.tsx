@@ -925,7 +925,7 @@ export class Timeline extends React.Component<
       !haveNewest ||
       Boolean(
         newestBottomVisibleMessageId &&
-          newestBottomVisibleMessageId !== last(items)
+        newestBottomVisibleMessageId !== last(items)
       );
     const areSomeMessagesBelowCurrentPosition =
       !haveNewest ||
@@ -936,12 +936,12 @@ export class Timeline extends React.Component<
 
     const areUnreadBelowCurrentPosition = Boolean(
       areThereAnyMessages &&
-        areAnyMessagesUnread &&
-        areAnyMessagesBelowCurrentPosition
+      areAnyMessagesUnread &&
+      areAnyMessagesBelowCurrentPosition
     );
     const shouldShowScrollDownButtons = Boolean(
       areThereAnyMessages &&
-        (areUnreadBelowCurrentPosition || areSomeMessagesBelowCurrentPosition)
+      (areUnreadBelowCurrentPosition || areSomeMessagesBelowCurrentPosition)
     );
 
     let floatingHeader: ReactNode;
