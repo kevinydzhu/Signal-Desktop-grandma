@@ -4,7 +4,6 @@ name: Stories
 on:
   push:
     branches:
-      - development
       - main
   pull_request:
 jobs:
