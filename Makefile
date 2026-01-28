@@ -15,8 +15,8 @@ endif
 	$(eval LAST_UPSTREAM := $(shell git log --pretty=format:'%H %D' | grep -m1 'upstream/' | cut -d' ' -f1))
 	$(eval LAST_UPSTREAM_DESC := $(shell git describe --tags --exact-match $(LAST_UPSTREAM) 2>/dev/null || echo $(LAST_UPSTREAM)))
 	@echo "Last upstream commit: $(LAST_UPSTREAM_DESC)"
-	@echo "Creating $(UPSTREAM_TAG) branch and rebasing..."
-	git checkout -b $(UPSTREAM_TAG)
+	@echo "Creating $(UPSTREAM_TAG)-dev branch and rebasing..."
+	git checkout -b $(UPSTREAM_TAG)-dev
 	git rebase --onto $(UPSTREAM_TAG)-upstream $(LAST_UPSTREAM)
 	$(MAKE) finalize-sync
 
