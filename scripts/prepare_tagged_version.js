@@ -11,7 +11,12 @@ const {
 } = require('./packageJson.js');
 
 const release = process.argv[2];
-if (release !== 'alpha' && release !== 'axolotl' && release !== 'adhoc') {
+if (
+  release !== 'alpha' &&
+  release !== 'axolotl' &&
+  release !== 'adhoc' &&
+  release !== 'dev'
+) {
   console.error(`Invalid release line: ${release}`);
   process.exit(1);
 }

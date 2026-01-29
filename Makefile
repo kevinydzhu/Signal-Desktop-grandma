@@ -1,7 +1,7 @@
 UPSTREAM_URL := https://github.com/signalapp/Signal-Desktop.git
 UPSTREAM_TAG ?=
 
-.PHONY: sync setup-upstream fetch-upstream finalize-sync
+.PHONY: sync setup-upstream fetch-upstream check
 
 sync: setup-upstream fetch-upstream
 ifndef UPSTREAM_TAG
@@ -18,9 +18,9 @@ endif
 	@echo "Creating $(UPSTREAM_TAG)-dev branch and rebasing..."
 	git checkout -b $(UPSTREAM_TAG)-dev
 	git rebase --onto $(UPSTREAM_TAG)-upstream $(LAST_UPSTREAM)
-	$(MAKE) finalize-sync
+	$(MAKE) check
 
-finalize-sync:
+check:
 	@echo "Running pnpm install..."
 	pnpm i
 	@echo "Running pnpm run generate..."
