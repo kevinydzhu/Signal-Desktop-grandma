@@ -284,7 +284,7 @@ jobs:
       - run: type temp.json | findstr /v certificateSubjectName | findstr /v certificateSha1 > package.json
       - run: pnpm run prepare-beta-build
       - name: Prepare build metadata
-        run: node scripts/prepare_build_metadata.js
+        run: node scripts/prepare_tagged_version.js dev
 
       - name: Create bundle
         run: pnpm run build:esbuild:prod
