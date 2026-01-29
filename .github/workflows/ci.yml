@@ -26,7 +26,7 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: "pnpm-lock.yaml"
       - name: Cache .electron-gyp
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v4
         with:
           path: ~/.electron-gyp
           key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -34,13 +34,13 @@ jobs:
       # - name: Setup sccache
       #   uses: mozilla-actions/sccache-action@054db53350805f83040bf3e6e9b8cf5a139aa7c9 # v0.0.7
       # - name: Restore sccache
-      #   uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      #   uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v4
       #   with:
       #     path: ${{ env.SCCACHE_PATH }}
       #     key: sccache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'patches/**') }}
 
       - name: Restore cached .eslintcache and tsconfig.tsbuildinfo
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache/restore@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v4
         id: cache-lint
         with:
           path: |
@@ -69,7 +69,7 @@ jobs:
       - run: git diff --exit-code
 
       - name: Update cached .eslintcache and tsconfig.tsbuildinfo
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache/save@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v4
         if: github.ref == 'refs/heads/main'
         with:
           path: |
@@ -95,7 +95,7 @@ jobs:
   #         cache: "pnpm"
   #         cache-dependency-path: "pnpm-lock.yaml"
   #     - name: Cache .electron-gyp
-  #       uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+  #       uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v4
   #       with:
   #         path: ~/.electron-gyp
   #         key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -103,7 +103,7 @@ jobs:
   #     # - name: Setup sccache
   #     #   uses: mozilla-actions/sccache-action@054db53350805f83040bf3e6e9b8cf5a139aa7c9 # v0.0.7
   #     # - name: Restore sccache
-  #     #   uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+  #     #   uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v4
   #     #   with:
   #     #     path: ${{ env.SCCACHE_PATH }}
   #     #     key: sccache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'patches/**') }}
@@ -169,7 +169,7 @@ jobs:
   #         cache: "pnpm"
   #         cache-dependency-path: "pnpm-lock.yaml"
   #     - name: Cache .electron-gyp
-  #       uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+  #       uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v4
   #       with:
   #         path: ~/.electron-gyp
   #         key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -180,7 +180,7 @@ jobs:
   #     # - name: Setup sccache
   #     #   uses: mozilla-actions/sccache-action@054db53350805f83040bf3e6e9b8cf5a139aa7c9 # v0.0.7
   #     # - name: Restore sccache
-  #     #   uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+  #     #   uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v4
   #     #   with:
   #     #     path: ${{ env.SCCACHE_PATH }}
   #     #     key: sccache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'patches/**') }}
@@ -416,7 +416,7 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: "pnpm-lock.yaml"
       - name: Cache .electron-gyp
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v4
         with:
           path: ~/.electron-gyp
           key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -430,7 +430,7 @@ jobs:
       # - name: Setup sccache
       #   uses: mozilla-actions/sccache-action@054db53350805f83040bf3e6e9b8cf5a139aa7c9 # v0.0.7
       # - name: Restore sccache
-      #   uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      #   uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v4
       #   with:
       #     path: ${{ env.SCCACHE_PATH }}
       #     key: sccache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'patches/**') }}
@@ -511,7 +511,7 @@ jobs:
   #         cache: "pnpm"
   #         cache-dependency-path: "pnpm-lock.yaml"
   #     - name: Cache .electron-gyp
-  #       uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+  #       uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v4
   #       with:
   #         path: ~/.electron-gyp
   #         key: electron-gyp-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
